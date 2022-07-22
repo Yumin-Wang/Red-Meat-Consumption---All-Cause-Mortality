@@ -46,7 +46,10 @@ names(DR1TOT) <- c("SEQN","TKCAL", "TCARB", "TFIBE", "TSFAT", "TMFAT", "TPFAT", 
 names(DR2TOT) <- c("SEQN","TKCAL", "TCARB", "TFIBE", "TSFAT", "TMFAT", "TPFAT", "TCHOL", "TMAGN")
 DR2TOT$DRQSDIET<-DR1TOT$DRQSDIET
 
-test<-bind_rows(DR1TOT, DR2TOT) %>% group_by(SEQN) %>%summarise_all(funs(mean),na.rm=TRUE)
+TOT<-bind_rows(DR1TOT, DR2TOT) %>% group_by(SEQN) %>%summarise_all(funs(mean),na.rm=TRUE)
+
+remove(DR1TOT)
+remove(DR2TOT)
 
 
 
