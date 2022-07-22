@@ -3,6 +3,8 @@ require(SASxport)
 library(dplyr)
 library(readr)
 
+
+
 #Read demographic
 read_demo <- function(){
   DEMO_E <- read.xport("DATA/DEMO Demographic Variables & Sample Weights/DEMO_E.XPT")
@@ -397,7 +399,12 @@ DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ <- merge(DEMO_Mortality_A
 remove(SLQ)
 remove(DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ)
 
+#Read prescription medication
+source("DATA/RXQ_RX Prescription Medications/Prescription_Cleaning.r")
 
+DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ_RXQ <- merge(DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ,PRESCRIPTION,by="SEQN",all.x=TRUE)
+remove(PRESCRIPTION)
+remove(DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ)
 
 ############################OCCUPATION
 #To be determined
