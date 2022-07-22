@@ -406,6 +406,14 @@ DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ_RXQ <- merge(DEMO_Mortali
 remove(PRESCRIPTION)
 remove(DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ)
 
+#Read Total Nutrition Intake
+source("DATA/DR1TOT Dietary Interview - Total Nutrient Intakes, First Day/TOT_NUTRITION.r")
+
+DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ_RXQ_TOT <- merge(DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ_RXQ,TOT,by="SEQN",all.x=TRUE)
+remove(TOT)
+remove(DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ_RXQ)
+
+
 ############################OCCUPATION
 #To be determined
 
