@@ -224,6 +224,8 @@ read_BPX <- function(){
   remove(BPX_G)
   remove(BPX_H)
   remove(BPX_I)
+  BPX$BPXSY = rowMeans(BPX[,c("BPXSY1","BPXSY2","BPXSY3","BPXSY4")],na.rm=TRUE)
+  BPX <- BPX[c("SEQN","BPXSY")]
   return(BPX)
 }
 BPX <-read_BPX()
@@ -412,6 +414,27 @@ source("DATA/DR1TOT Dietary Interview - Total Nutrient Intakes, First Day/TOT_NU
 DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ_RXQ_TOT <- merge(DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ_RXQ,TOT,by="SEQN",all.x=TRUE)
 remove(TOT)
 remove(DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ_RXQ)
+
+
+#Read Total dietary supplement intake
+source("DATA/DS1TOT Dietary Supplement Use 24-Hour - Total Dietary Supplements, First Day/TOT_supplement.r")
+DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ_RXQ_TOT_SUP <- merge(DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ_RXQ_TOT,TOT_supp,by="SEQN",all.x=TRUE)
+remove(TOT_supp)
+remove(DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ_RXQ_TOT)
+
+#Read Multivitamin user -individual supplement file
+source("DATA/DS1IDS Dietary Supplement Use 24-Hour - Individual Dietary Supplements, First Day/Multivitamin_Use.r")
+DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ_RXQ_TOT_SUP_VITA <- merge(DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ_RXQ_TOT_SUP,DSIDS,by="SEQN",all.x=TRUE)
+remove(DSIDS)
+remove(DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ_RXQ_TOT_SUP)
+
+
+
+
+
+
+
+
 
 
 ############################OCCUPATION
