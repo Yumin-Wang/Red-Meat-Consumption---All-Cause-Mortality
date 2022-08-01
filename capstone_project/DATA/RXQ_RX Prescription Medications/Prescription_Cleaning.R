@@ -8,21 +8,22 @@ RXQ_RX_E <- read.xport("DATA/RXQ_RX Prescription Medications/RXQ_RX_E.XPT")
 RXQ_RX_F <- read.xport("DATA/RXQ_RX Prescription Medications/RXQ_RX_F.XPT")
 RXQ_RX_G <- read.xport("DATA/RXQ_RX Prescription Medications/RXQ_RX_G.XPT")
 RXQ_RX_H <- read.xport("DATA/RXQ_RX Prescription Medications/RXQ_RX_H.XPT")
-RXQ_RX_I <- read.xport("DATA/RXQ_RX Prescription Medications/RXQ_RX_I.XPT")
+#RXQ_RX_I <- read.xport("DATA/RXQ_RX Prescription Medications/RXQ_RX_I.XPT")
 
 myvars <- c("SEQN","RXDDRUG")
 RXQ_RX_E <- RXQ_RX_E[myvars]
 RXQ_RX_F <- RXQ_RX_F[myvars]
 RXQ_RX_G <- RXQ_RX_G[myvars]
 RXQ_RX_H <- RXQ_RX_H[myvars]
-RXQ_RX_I <- RXQ_RX_I[myvars]
+#RXQ_RX_I <- RXQ_RX_I[myvars]
 
-RXQ_RX<-rbind(RXQ_RX_E,RXQ_RX_F,RXQ_RX_G,RXQ_RX_H,RXQ_RX_I)
+#RXQ_RX<-rbind(RXQ_RX_E,RXQ_RX_F,RXQ_RX_G,RXQ_RX_H,RXQ_RX_I)
+RXQ_RX<-rbind(RXQ_RX_E,RXQ_RX_F,RXQ_RX_G,RXQ_RX_H)
 remove(RXQ_RX_E)
 remove(RXQ_RX_F)
 remove(RXQ_RX_G)
 remove(RXQ_RX_H)
-remove(RXQ_RX_I)
+#remove(RXQ_RX_I)
 
 ASPIRIN_USER<-dplyr::filter(RXQ_RX, grepl('*ASPIRIN*', RXQ_RX$RXDDRUG))
 ASPIRIN_USER$ASPIRIN<-1
