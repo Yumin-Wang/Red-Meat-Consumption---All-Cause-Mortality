@@ -10,3 +10,4 @@ DR1IFF_G <- read.xport("DATA/DR1IFF Dietary Interview - Individual Foods, First 
 DR1IFF_H <- read.xport("DATA/DR1IFF Dietary Interview - Individual Foods, First Day/DR1IFF_H.XPT")
 DR1IFF_I <- read.xport("DATA/DR1IFF Dietary Interview - Individual Foods, First Day/DR1IFF_I.XPT")
 
+DRXFCD_E <- read.xport("DATA/DRXFCD Dietary Interview Technical Support File - Food Codes/DRXFCD_E.XPT")

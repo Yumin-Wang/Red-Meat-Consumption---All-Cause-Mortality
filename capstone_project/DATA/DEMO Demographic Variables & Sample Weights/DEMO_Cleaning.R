@@ -440,25 +440,67 @@ DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ_RXQ_TOT_SUP_VITA <- merge
 remove(DSIDS)
 remove(DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ_RXQ_TOT_SUP)
 
-############################OCCUPATION
-#To be determined
+#OCCUPATION
+read_OCQ <- function(){
+  OCQ_E <- read.xport("DATA/OCQ Occupation/OCQ_E.XPT")
+  OCQ_F <- read.xport("DATA/OCQ Occupation/OCQ_F.XPT")
+  OCQ_G <- read.xport("DATA/OCQ Occupation/OCQ_G.XPT")
+  OCQ_H <- read.xport("DATA/OCQ Occupation/OCQ_H.XPT")
+  myvars <- c("SEQN","OCD241")
+  OCQ_E <- OCQ_E[myvars]
+  OCQ_F <- OCQ_F[myvars]
+  OCQ_G <- OCQ_G[myvars]
+  OCQ_H <- OCQ_H[myvars]
+  OCQ<-rbind(OCQ_E,OCQ_F,OCQ_G,OCQ_H)
+  remove(OCQ_E)
+  remove(OCQ_F)
+  remove(OCQ_G)
+  remove(OCQ_H)
+  return(OCQ)
+}
+
+OCQ <-read_OCQ()
+
+DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ_RXQ_TOT_SUP_VITA_OCQ <- merge(DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ_RXQ_TOT_SUP_VITA,OCQ,by="SEQN",all.x=TRUE)
+remove(OCQ)
+remove(DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ_RXQ_TOT_SUP_VITA)
+
+
+
+#Physical Activity
+read_PAQ <- function(){
+  PAQ_E <- read.xport("DATA/PAQ Physical Activity/PAQ_E.XPT")
+  PAQ_F <- read.xport("DATA/PAQ Physical Activity/PAQ_F.XPT")
+  PAQ_G <- read.xport("DATA/PAQ Physical Activity/PAQ_G.XPT")
+  PAQ_H <- read.xport("DATA/PAQ Physical Activity/PAQ_H.XPT")
+  myvars <- c("SEQN","PAD660","PAD680")
+  PAQ_E <- PAQ_E[myvars]
+  PAQ_F <- PAQ_F[myvars]
+  PAQ_G <- PAQ_G[myvars]
+  PAQ_H <- PAQ_H[myvars]
+  PAQ<-rbind(PAQ_E,PAQ_F,PAQ_G,PAQ_H)
+  remove(PAQ_E)
+  remove(PAQ_F)
+  remove(PAQ_G)
+  remove(PAQ_H)
+  return(PAQ)
+}
+
+PAQ <-read_PAQ()
+
+DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ_RXQ_TOT_SUP_VITA_OCQ_PAQ <- merge(DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ_RXQ_TOT_SUP_VITA_OCQ,PAQ,by="SEQN",all.x=TRUE)
+remove(PAQ)
+remove(DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ_RXQ_TOT_SUP_VITA_OCQ)
+
+#Smoking habit
+source("DATA/SMQ Smoking - Cigarette Use/SMOKING.r")
+DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ_RXQ_TOT_SUP_VITA_OCQ_PAQ_SMQ <- merge(DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ_RXQ_TOT_SUP_VITA_OCQ_PAQ,SMQ,by="SEQN",all.x=TRUE)
+remove(SMQ)
+remove(DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ_RXQ_TOT_SUP_VITA_OCQ_PAQ)
 
 
 
 
-
-#############################
-
-
-
-###########################Physical Activity
-#To be determined
-
-
-
-
-
-#############################
 
 
 
