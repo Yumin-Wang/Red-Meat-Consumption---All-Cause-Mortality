@@ -232,6 +232,7 @@ read_BPX <- function(){
   #remove(BPX_I)
   BPX$BPXSY = rowMeans(BPX[,c("BPXSY1","BPXSY2","BPXSY3","BPXSY4")],na.rm=TRUE)
   BPX <- BPX[c("SEQN","BPXSY")]
+  BPX$BPXSY[is.nan(BPX$BPXSY)]<-NA
   return(BPX)
 }
 BPX <-read_BPX()
@@ -419,6 +420,7 @@ source("DATA/RXQ_RX Prescription Medications/Prescription_Cleaning.r")
 DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ_RXQ <- merge(DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ,PRESCRIPTION,by="SEQN",all.x=TRUE)
 remove(PRESCRIPTION)
 remove(DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ)
+DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ_RXQ[,c("ASPIRIN","ATORVASTATIN","IBUPROFEN","OPIUM","STATIN","VALSARTAN")][is.na(DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ_RXQ[,c("ASPIRIN","ATORVASTATIN","IBUPROFEN","OPIUM","STATIN","VALSARTAN")])]<-0
 
 #Read Total Nutrition Intake
 source("DATA/DR1TOT Dietary Interview - Total Nutrient Intakes, First Day/TOT_NUTRITION.r")
@@ -439,6 +441,10 @@ source("DATA/DS1IDS Dietary Supplement Use 24-Hour - Individual Dietary Suppleme
 DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ_RXQ_TOT_SUP_VITA <- merge(DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ_RXQ_TOT_SUP,DSIDS,by="SEQN",all.x=TRUE)
 remove(DSIDS)
 remove(DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ_RXQ_TOT_SUP)
+DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ_RXQ_TOT_SUP_VITA$MULTIVITAMIN[is.na(DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ_RXQ_TOT_SUP_VITA$MULTIVITAMIN)]<-0
+
+
+
 
 #OCCUPATION
 read_OCQ <- function(){
@@ -504,12 +510,49 @@ DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ_RXQ_TOT_SUP_VITA_OCQ_PAQ_
 remove(TOT_FOOD)
 remove(DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ_RXQ_TOT_SUP_VITA_OCQ_PAQ_SMQ)
 
+#NEW_MEAT
+source("DATA/FPED_DR1IFF - Individual food, First day/INDIVIDUAL_FOOD.r")
+DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ_RXQ_TOT_SUP_VITA_OCQ_PAQ_SMQ_FOOD_MEAT <- merge(DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ_RXQ_TOT_SUP_VITA_OCQ_PAQ_SMQ_FOOD,NEW_MEAT,by="SEQN",all.x=TRUE)
+remove(NEW_MEAT)
+remove(DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ_RXQ_TOT_SUP_VITA_OCQ_PAQ_SMQ_FOOD)
+
+DATA<-DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ_RXQ_TOT_SUP_VITA_OCQ_PAQ_SMQ_FOOD_MEAT
+remove(DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ_RXQ_TOT_SUP_VITA_OCQ_PAQ_SMQ_FOOD_MEAT)
+
+DATA$BEEF_VEAL[!is.na(DATA$PF_MEAT)&is.na(DATA$BEEF_VEAL)]<-0
+DATA$BEEF_VEAL_LAMB[!is.na(DATA$PF_MEAT)&is.na(DATA$BEEF_VEAL_LAMB)]<-0
+DATA$BEEF_VEAL_PORK[!is.na(DATA$PF_MEAT)&is.na(DATA$BEEF_VEAL_PORK)]<-0
+DATA$BEEF_VEAL_PORK_LAMB[!is.na(DATA$PF_MEAT)&is.na(DATA$BEEF_VEAL_PORK_LAMB)]<-0
 
 
+#
+DATA<-DATA[DATA$RIDAGEYR>=20&DATA$RIDAGEYR<=79,]
 
 
+#Check NAs and NaNs
+Na<-vector(mode="numeric")
+NAN<-vector(mode="numeric")
+for (i in 1:dim(DATA)[2]){
+  Na[i]<-sum(is.na(DATA[,i]))
+  NAN[i]<-sum(is.nan(DATA[,i]))
+  
+  
+  
+}
 
 
+WOMEN<-DATA[DATA$RIAGENDR==2,]
+
+#Check NAs and NaNs
+Na_WOMEN<-vector(mode="numeric")
+NAN_WOMEN<-vector(mode="numeric")
+for (i in 1:dim(WOMEN)[2]){
+  Na_WOMEN[i]<-sum(is.na(WOMEN[,i]))
+  NAN_WOMEN[i]<-sum(is.nan(WOMEN[,i]))
+  
+  
+  
+}
 
 
 

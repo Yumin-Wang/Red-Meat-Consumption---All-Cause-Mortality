@@ -51,7 +51,7 @@ TOT_supp$DSDS<-floor(TOT_supp$DSDS)
 
 remove(DS1TOT)
 remove(DS2TOT)
-
+TOT_supp$DSDS[is.nan(TOT_supp$DSDS)]<-NA
 
 
 

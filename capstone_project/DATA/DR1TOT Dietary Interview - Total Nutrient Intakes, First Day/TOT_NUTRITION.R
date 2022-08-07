@@ -53,6 +53,8 @@ TOT<-bind_rows(DR1TOT, DR2TOT) %>% group_by(SEQN) %>%summarise_all(funs(mean),na
 remove(DR1TOT)
 remove(DR2TOT)
 
+is.nan.data.frame <- function(x){do.call(cbind, lapply(x, is.nan))}
+TOT[is.nan(TOT)]<-NA
 
 
 
