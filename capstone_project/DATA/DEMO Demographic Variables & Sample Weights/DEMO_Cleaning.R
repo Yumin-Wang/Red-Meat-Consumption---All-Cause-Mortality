@@ -132,7 +132,8 @@ read_ALQ <- function(){
   ALQ_G <- read.xport("DATA/ALQ Alcohol Use/ALQ_G.XPT")
   ALQ_H <- read.xport("DATA/ALQ Alcohol Use/ALQ_H.XPT")
   #ALQ_I <- read.xport("DATA/ALQ Alcohol Use/ALQ_I.XPT")
-  myvars <- c("SEQN","ALQ130")
+  #myvars <- c("SEQN","ALQ130")
+  myvars <- c("SEQN","ALQ120Q","ALQ130")
   ALQ_E <- ALQ_E[myvars]
   ALQ_F <- ALQ_F[myvars]
   ALQ_G <- ALQ_G[myvars]
@@ -145,6 +146,8 @@ read_ALQ <- function(){
   remove(ALQ_G)
   remove(ALQ_H)
   #remove(ALQ_I)
+  ALQ$ALQ130[ALQ$ALQ120Q==0]<-0
+  ALQ<-ALQ[,c("SEQN","ALQ130")]
   return(ALQ)
 }
 ALQ <-read_ALQ()
@@ -452,7 +455,8 @@ read_OCQ <- function(){
   OCQ_F <- read.xport("DATA/OCQ Occupation/OCQ_F.XPT")
   OCQ_G <- read.xport("DATA/OCQ Occupation/OCQ_G.XPT")
   OCQ_H <- read.xport("DATA/OCQ Occupation/OCQ_H.XPT")
-  myvars <- c("SEQN","OCD241")
+  #myvars <- c("SEQN","OCD241")
+  myvars <- c("SEQN","OCD150","OCQ180","OCD241")
   OCQ_E <- OCQ_E[myvars]
   OCQ_F <- OCQ_F[myvars]
   OCQ_G <- OCQ_G[myvars]
@@ -462,6 +466,8 @@ read_OCQ <- function(){
   remove(OCQ_F)
   remove(OCQ_G)
   remove(OCQ_H)
+  OCQ$OCQ180[OCQ$OCD150==4]<-0
+  OCQ<-OCQ[,c("SEQN","OCQ180","OCD241")]
   return(OCQ)
 }
 
@@ -479,7 +485,8 @@ read_PAQ <- function(){
   PAQ_F <- read.xport("DATA/PAQ Physical Activity/PAQ_F.XPT")
   PAQ_G <- read.xport("DATA/PAQ Physical Activity/PAQ_G.XPT")
   PAQ_H <- read.xport("DATA/PAQ Physical Activity/PAQ_H.XPT")
-  myvars <- c("SEQN","PAD660","PAD680")
+  #myvars <- c("SEQN","PAD660","PAD680")
+  myvars <- c("SEQN","PAQ650","PAD660","PAQ665","PAD675","PAD680")
   PAQ_E <- PAQ_E[myvars]
   PAQ_F <- PAQ_F[myvars]
   PAQ_G <- PAQ_G[myvars]
@@ -489,6 +496,15 @@ read_PAQ <- function(){
   remove(PAQ_F)
   remove(PAQ_G)
   remove(PAQ_H)
+  PAQ$PAQ650[PAQ$PAQ650==7]<-NA
+  PAQ$PAQ650[PAQ$PAQ650==9]<-NA
+  PAQ$PAQ665[PAQ$PAQ665==7]<-NA
+  PAQ$PAQ665[PAQ$PAQ665==9]<-NA
+  PAQ$ACTIVITY <- floor(rowMeans(subset(PAQ, select = c(PAQ650, PAQ665)), na.rm = TRUE))  
+  is.nan.data.frame <- function(x)
+  {do.call(cbind, lapply(x, is.nan))}
+  PAQ$ACTIVITY[is.nan(PAQ$ACTIVITY)] <- NA
+  PAQ<-PAQ[,c("SEQN","ACTIVITY","PAD660")]  
   return(PAQ)
 }
 
@@ -528,7 +544,23 @@ DATA$BEEF_VEAL_PORK_LAMB[!is.na(DATA$PF_MEAT)&is.na(DATA$BEEF_VEAL_PORK_LAMB)]<-
 #
 DATA<-DATA[DATA$RIDAGEYR>=20&DATA$RIDAGEYR<=79,]
 
-
+DATA<-subset(DATA, select = -c(BPQ050A))
+#DATA<-subset(DATA, select = -c(UCOD_LEADING))
+DATA<-subset(DATA, select = -c(OCD241))
+DATA<-subset(DATA, select = -c(PAD660))
+DATA<-DATA[!is.na(DATA$ALQ130),]
+DATA<-DATA[!is.na(DATA$TKCAL),]
+DATA<-DATA[!is.na(DATA$INDFMIN2),]
+DATA<-DATA[!is.na(DATA$INDFMPIR),]
+DATA<-DATA[!is.na(DATA$MORTSTAT),]
+DATA<-DATA[!is.na(DATA$BMXBMI),]
+DATA<-DATA[!is.na(DATA$BPQ080),]
+DATA<-DATA[!is.na(DATA$OCQ180),]
+DATA<-DATA[!is.na(DATA$BPXSY),]
+DATA<-DATA[!is.na(DATA$DPQ020),]
+DATA<-DATA[!is.na(DATA$SLD010H),]
+DATA<-DATA[!is.na(DATA$DSDS),]
+DATA<-DATA[!is.na(DATA$SMOKING),]
 #Check NAs and NaNs
 Na<-vector(mode="numeric")
 NAN<-vector(mode="numeric")
