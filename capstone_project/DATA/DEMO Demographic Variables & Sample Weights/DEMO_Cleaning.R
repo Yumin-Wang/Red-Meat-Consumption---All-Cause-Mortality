@@ -10,7 +10,8 @@ read_demo <- function(){
   DEMO_G <- read.xport("DATA/DEMO Demographic Variables & Sample Weights/DEMO_G.XPT")
   DEMO_H <- read.xport("DATA/DEMO Demographic Variables & Sample Weights/DEMO_H.XPT")
   #DEMO_I <- read.xport("DATA/DEMO Demographic Variables & Sample Weights/DEMO_I.XPT")
-  myvars <- c("SEQN","RIDAGEYR", "RIAGENDR", "DMDEDUC2", "RIDRETH1", "DMDMARTL", "INDFMIN2", "INDFMPIR", "SDDSRVYR", "SDMVPSU", "SDMVSTRA")
+  #myvars <- c("SEQN","RIDAGEYR", "RIAGENDR", "DMDEDUC2", "RIDRETH1", "DMDMARTL", "INDFMIN2", "INDFMPIR", "SDDSRVYR", "SDMVPSU", "SDMVSTRA")
+  myvars <- c("SEQN","RIDAGEYR", "RIAGENDR", "DMDEDUC2", "RIDRETH1", "DMDMARTL", "INDFMIN2", "INDFMPIR", "SDDSRVYR")
   DEMO_E <- DEMO_E[myvars]
   DEMO_F <- DEMO_F[myvars]
   DEMO_G <- DEMO_G[myvars]
@@ -105,7 +106,8 @@ read_mortality<-function(){
   #                        na = c("", ".")
   #)
   
-  myvars <- c("seqn","eligstat", "ucod_leading","mortstat", "permth_int")
+  #myvars <- c("seqn","eligstat", "ucod_leading","mortstat", "permth_int")
+  myvars <- c("seqn","eligstat","mortstat", "permth_int")
   Mortality_E <- Mortality_E[myvars]
   Mortality_F <- Mortality_F[myvars]
   Mortality_G <- Mortality_G[myvars]
@@ -198,7 +200,8 @@ read_BPQ <- function(){
   BPQ_G <- read.xport("DATA/BPQ Blood Pressure & Cholesterol/BPQ_G.XPT")
   BPQ_H <- read.xport("DATA/BPQ Blood Pressure & Cholesterol/BPQ_H.XPT")
   #BPQ_I <- read.xport("DATA/BPQ Blood Pressure & Cholesterol/BPQ_I.XPT")
-  myvars <- c("SEQN","BPQ080","BPQ020","BPQ050A")
+  #myvars <- c("SEQN","BPQ080","BPQ020","BPQ050A")
+  myvars <- c("SEQN","BPQ080","BPQ020")
   BPQ_E <- BPQ_E[myvars]
   BPQ_F <- BPQ_F[myvars]
   BPQ_G <- BPQ_G[myvars]
@@ -214,8 +217,8 @@ read_BPQ <- function(){
   BPQ$BPQ080[BPQ$BPQ080==9]<-NA
   BPQ$BPQ020[BPQ$BPQ020==7]<-NA
   BPQ$BPQ020[BPQ$BPQ020==9]<-NA
-  BPQ$BPQ050A[BPQ$BPQ050A==7]<-NA
-  BPQ$BPQ050A[BPQ$BPQ050A==9]<-NA
+  #BPQ$BPQ050A[BPQ$BPQ050A==7]<-NA
+  #BPQ$BPQ050A[BPQ$BPQ050A==9]<-NA
   #remove(BPQ_I)
   return(BPQ)
 }
@@ -372,6 +375,11 @@ read_MCQ <- function(){
   MCQ$MCQ300C[MCQ$MCQ300C==7|MCQ$MCQ300C==9]<-NA
   MCQ$MCQ300A[MCQ$MCQ300A==7|MCQ$MCQ300A==9]<-NA
   MCQ$MCQ160F.1[MCQ$MCQ160F.1==7|MCQ$MCQ160F.1==9]<-NA
+  MCQ$CARDIOVASCULAR <- floor(rowMeans(subset(MCQ, select = c(MCQ160C, MCQ160F)), na.rm = TRUE))  
+  is.nan.data.frame <- function(x)
+  {do.call(cbind, lapply(x, is.nan))}
+  MCQ$CARDIOVASCULAR[is.nan(MCQ$CARDIOVASCULAR)] <- NA
+  MCQ<-MCQ[,c("SEQN","CARDIOVASCULAR","MCQ220","MCQ300C","MCQ300A","MCQ160F")]  
   return(MCQ)
 }
 MCQ <-read_MCQ()
@@ -387,7 +395,7 @@ read_RHQ <- function(){
   RHQ_G <- read.xport("DATA/RHQ Reproductive Health/RHQ_G.XPT")
   RHQ_H <- read.xport("DATA/RHQ Reproductive Health/RHQ_H.XPT")
   #RHQ_I <- read.xport("DATA/RHQ Reproductive Health/RHQ_I.XPT")
-  myvars <- c("SEQN","RHQ540","RHQ060","RHQ131","RHQ420")
+  myvars <- c("SEQN","RHQ010","RHQ540","RHQ060","RHQ131","RHQ420")
   RHQ_E <- RHQ_E[myvars]
   RHQ_F <- RHQ_F[myvars]
   RHQ_G <- RHQ_G[myvars]
@@ -400,10 +408,15 @@ read_RHQ <- function(){
   remove(RHQ_G)
   remove(RHQ_H)
   #remove(RHQ_I)
+  RHQ$RHQ010[RHQ$RHQ010==777|RHQ$RHQ010==999]<-NA
   RHQ$RHQ540[RHQ$RHQ540==7|RHQ$RHQ540==9]<-NA
   RHQ$RHQ060[RHQ$RHQ060==777|RHQ$RHQ060==999]<-NA
   RHQ$RHQ131[RHQ$RHQ131==7|RHQ$RHQ131==9]<-NA
   RHQ$RHQ420[RHQ$RHQ420==7|RHQ$RHQ420==9]<-NA
+  RHQ$MENOPAUSAL<-NA
+  RHQ$MENOPAUSAL[!is.na(RHQ$RHQ010)&!is.na(RHQ$RHQ060)]<-1
+  RHQ$MENOPAUSAL[!is.na(RHQ$RHQ010)&is.na(RHQ$RHQ060)]<-0
+  RHQ<-RHQ[,c("SEQN","MENOPAUSAL","RHQ540","RHQ131","RHQ420")]
   return(RHQ)
 }
 RHQ <-read_RHQ()
@@ -496,7 +509,7 @@ read_OCQ <- function(){
   remove(OCQ_G)
   remove(OCQ_H)
   OCQ$OCQ180[OCQ$OCD150==4]<-0
-  OCQ<-OCQ[,c("SEQN","OCQ180","OCD241")]
+  OCQ<-OCQ[,c("SEQN","OCQ180")]
   OCQ$OCQ180[OCQ$OCQ180==77777|OCQ$OCQ180==99999]<-NA
   return(OCQ)
 }
@@ -530,11 +543,12 @@ read_PAQ <- function(){
   PAQ$PAQ650[PAQ$PAQ650==9]<-NA
   PAQ$PAQ665[PAQ$PAQ665==7]<-NA
   PAQ$PAQ665[PAQ$PAQ665==9]<-NA
+  PAQ$PAD680[PAQ$PAD680==7777|PAQ$PAD680==9999]<-NA
   PAQ$ACTIVITY <- floor(rowMeans(subset(PAQ, select = c(PAQ650, PAQ665)), na.rm = TRUE))  
   is.nan.data.frame <- function(x)
   {do.call(cbind, lapply(x, is.nan))}
   PAQ$ACTIVITY[is.nan(PAQ$ACTIVITY)] <- NA
-  PAQ<-PAQ[,c("SEQN","ACTIVITY","PAD660")]  
+  PAQ<-PAQ[,c("SEQN","ACTIVITY","PAD680")]  
   return(PAQ)
 }
 
@@ -576,10 +590,6 @@ DATA<-DATA[DATA$RIDAGEYR>=20&DATA$RIDAGEYR<=79&DATA$ELIGSTAT!=3,]
 
 as.data.frame(colSums(is.na(DATA)))
 
-DATA<-subset(DATA, select = -c(BPQ050A))
-DATA<-subset(DATA, select = -c(UCOD_LEADING))
-DATA<-subset(DATA, select = -c(OCD241))
-DATA<-subset(DATA, select = -c(PAD660))
 DATA<-DATA[!is.na(DATA$ALQ130),]
 DATA<-DATA[!is.na(DATA$TKCAL),]
 DATA<-DATA[!is.na(DATA$INDFMIN2),]
