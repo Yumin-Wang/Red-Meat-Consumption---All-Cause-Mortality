@@ -3,8 +3,6 @@ require(SASxport)
 library(dplyr)
 library(readr)
 
-
-
 #Read demographic
 read_demo <- function(){
   DEMO_E <- read.xport("DATA/DEMO Demographic Variables & Sample Weights/DEMO_E.XPT")
@@ -25,6 +23,12 @@ read_demo <- function(){
   remove(DEMO_G)
   remove(DEMO_H)
   #remove(DEMO_I)
+  DEMO$DMDEDUC2[DEMO$DMDEDUC2==9]<-NA
+  DEMO$DMDEDUC2[DEMO$DMDEDUC2==7]<-NA
+  DEMO$DMDMARTL[DEMO$DMDMARTL==77]<-NA
+  DEMO$DMDMARTL[DEMO$DMDMARTL==99]<-NA
+  DEMO$INDFMIN2[DEMO$INDFMIN2==77]<-NA
+  DEMO$INDFMIN2[DEMO$INDFMIN2==99]<-NA
   return(DEMO)
 }
 DEMO <-read_demo()
@@ -148,6 +152,8 @@ read_ALQ <- function(){
   #remove(ALQ_I)
   ALQ$ALQ130[ALQ$ALQ120Q==0]<-0
   ALQ<-ALQ[,c("SEQN","ALQ130")]
+  ALQ$ALQ130[ALQ$ALQ130==777]<-NA
+  ALQ$ALQ130[ALQ$ALQ130==999]<-NA
   return(ALQ)
 }
 ALQ <-read_ALQ()
@@ -204,6 +210,12 @@ read_BPQ <- function(){
   remove(BPQ_F)
   remove(BPQ_G)
   remove(BPQ_H)
+  BPQ$BPQ080[BPQ$BPQ080==7]<-NA
+  BPQ$BPQ080[BPQ$BPQ080==9]<-NA
+  BPQ$BPQ020[BPQ$BPQ020==7]<-NA
+  BPQ$BPQ020[BPQ$BPQ020==9]<-NA
+  BPQ$BPQ050A[BPQ$BPQ050A==7]<-NA
+  BPQ$BPQ050A[BPQ$BPQ050A==9]<-NA
   #remove(BPQ_I)
   return(BPQ)
 }
@@ -264,6 +276,8 @@ read_DIQ <- function(){
   remove(DIQ_G)
   remove(DIQ_H)
   #remove(DIQ_I)
+  DIQ$DIQ010[DIQ$DIQ010==7]<-NA
+  DIQ$DIQ010[DIQ$DIQ010==9]<-NA
   return(DIQ)
 }
 DIQ <-read_DIQ()
@@ -291,6 +305,8 @@ read_DPQ <- function(){
   remove(DPQ_F)
   remove(DPQ_G)
   remove(DPQ_H)
+  DPQ$DPQ020[DPQ$DPQ020==7]<-NA
+  DPQ$DPQ020[DPQ$DPQ020==9]<-NA
   #remove(DPQ_I)
   return(DPQ)
 }
@@ -320,6 +336,8 @@ read_HSQ <- function(){
   remove(HSQ_G)
   remove(HSQ_H)
   #remove(HSQ_I)
+  HSQ$HSD010[HSQ$HSD010==7]<-NA
+  HSQ$HSD010[HSQ$HSD010==9]<-NA
   return(HSQ)
 }
 HSQ <-read_HSQ()
@@ -348,6 +366,12 @@ read_MCQ <- function(){
   remove(MCQ_G)
   remove(MCQ_H)
   #remove(MCQ_I)
+  MCQ$MCQ160C[MCQ$MCQ160C==7|MCQ$MCQ160C==9]<-NA
+  MCQ$MCQ160F[MCQ$MCQ160F==7|MCQ$MCQ160F==9]<-NA
+  MCQ$MCQ220[MCQ$MCQ220==7|MCQ$MCQ220==9]<-NA
+  MCQ$MCQ300C[MCQ$MCQ300C==7|MCQ$MCQ300C==9]<-NA
+  MCQ$MCQ300A[MCQ$MCQ300A==7|MCQ$MCQ300A==9]<-NA
+  MCQ$MCQ160F.1[MCQ$MCQ160F.1==7|MCQ$MCQ160F.1==9]<-NA
   return(MCQ)
 }
 MCQ <-read_MCQ()
@@ -376,6 +400,10 @@ read_RHQ <- function(){
   remove(RHQ_G)
   remove(RHQ_H)
   #remove(RHQ_I)
+  RHQ$RHQ540[RHQ$RHQ540==7|RHQ$RHQ540==9]<-NA
+  RHQ$RHQ060[RHQ$RHQ060==777|RHQ$RHQ060==999]<-NA
+  RHQ$RHQ131[RHQ$RHQ131==7|RHQ$RHQ131==9]<-NA
+  RHQ$RHQ420[RHQ$RHQ420==7|RHQ$RHQ420==9]<-NA
   return(RHQ)
 }
 RHQ <-read_RHQ()
@@ -407,6 +435,7 @@ read_SLQ <- function(){
   remove(SLQ_F)
   remove(SLQ_G)
   remove(SLQ_H)
+  SLQ$SLD010H[SLQ$SLD010H==77|SLQ$SLD010H==99]<-NA
   #remove(SLQ_I)
   return(SLQ)
 }
@@ -468,6 +497,7 @@ read_OCQ <- function(){
   remove(OCQ_H)
   OCQ$OCQ180[OCQ$OCD150==4]<-0
   OCQ<-OCQ[,c("SEQN","OCQ180","OCD241")]
+  OCQ$OCQ180[OCQ$OCQ180==77777|OCQ$OCQ180==99999]<-NA
   return(OCQ)
 }
 
@@ -542,10 +572,12 @@ DATA$BEEF_VEAL_PORK_LAMB[!is.na(DATA$PF_MEAT)&is.na(DATA$BEEF_VEAL_PORK_LAMB)]<-
 
 
 #
-DATA<-DATA[DATA$RIDAGEYR>=20&DATA$RIDAGEYR<=79,]
+DATA<-DATA[DATA$RIDAGEYR>=20&DATA$RIDAGEYR<=79&DATA$ELIGSTAT!=3,]
+
+as.data.frame(colSums(is.na(DATA)))
 
 DATA<-subset(DATA, select = -c(BPQ050A))
-#DATA<-subset(DATA, select = -c(UCOD_LEADING))
+DATA<-subset(DATA, select = -c(UCOD_LEADING))
 DATA<-subset(DATA, select = -c(OCD241))
 DATA<-subset(DATA, select = -c(PAD660))
 DATA<-DATA[!is.na(DATA$ALQ130),]
@@ -561,31 +593,18 @@ DATA<-DATA[!is.na(DATA$DPQ020),]
 DATA<-DATA[!is.na(DATA$SLD010H),]
 DATA<-DATA[!is.na(DATA$DSDS),]
 DATA<-DATA[!is.na(DATA$SMOKING),]
-#Check NAs and NaNs
-Na<-vector(mode="numeric")
-NAN<-vector(mode="numeric")
-for (i in 1:dim(DATA)[2]){
-  Na[i]<-sum(is.na(DATA[,i]))
-  NAN[i]<-sum(is.nan(DATA[,i]))
-  
-  
-  
-}
+DATA<-DATA[!is.na(DATA$DMDEDUC2),]
+DATA<-DATA[!is.na(DATA$DMDMARTL),]
+DATA<-DATA[!is.na(DATA$MCQ300A),]
+DATA<-DATA[!is.na(DATA$MCQ160F.1),]
+DATA<-DATA[!is.na(DATA$MCQ300C),]
+DATA<-DATA[!is.na(DATA$MCQ160C),]
+DATA<-DATA[!is.na(DATA$MCQ220),]
+DATA<-DATA[!is.na(DATA$DRQSDIET),]
+DATA<-DATA[!is.na(DATA$BPQ020),]
+DATA<-DATA[!is.na(DATA$DIQ010),]
 
+as.data.frame(colSums(is.na(DATA)))
 
 WOMEN<-DATA[DATA$RIAGENDR==2,]
-
-#Check NAs and NaNs
-Na_WOMEN<-vector(mode="numeric")
-NAN_WOMEN<-vector(mode="numeric")
-for (i in 1:dim(WOMEN)[2]){
-  Na_WOMEN[i]<-sum(is.na(WOMEN[,i]))
-  NAN_WOMEN[i]<-sum(is.nan(WOMEN[,i]))
-  
-  
-  
-}
-
-
-
-
+as.data.frame(colSums(is.na(WOMEN)))

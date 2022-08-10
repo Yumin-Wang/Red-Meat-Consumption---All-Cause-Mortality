@@ -55,7 +55,7 @@ remove(DR2TOT)
 
 is.nan.data.frame <- function(x){do.call(cbind, lapply(x, is.nan))}
 TOT[is.nan(TOT)]<-NA
-
+TOT$DRQSDIET[TOT$DRQSDIET==9]<-NA
 
 
 
