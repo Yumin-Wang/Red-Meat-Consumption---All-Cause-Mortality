@@ -395,7 +395,7 @@ read_RHQ <- function(){
   RHQ_G <- read.xport("DATA/RHQ Reproductive Health/RHQ_G.XPT")
   RHQ_H <- read.xport("DATA/RHQ Reproductive Health/RHQ_H.XPT")
   #RHQ_I <- read.xport("DATA/RHQ Reproductive Health/RHQ_I.XPT")
-  myvars <- c("SEQN","RHQ010","RHQ540","RHQ060","RHQ131","RHQ420")
+  myvars <- c("SEQN","RHQ010","RHQ540","RHQ060","RHQ131","RHQ420","RHD143")
   RHQ_E <- RHQ_E[myvars]
   RHQ_F <- RHQ_F[myvars]
   RHQ_G <- RHQ_G[myvars]
@@ -416,7 +416,8 @@ read_RHQ <- function(){
   RHQ$MENOPAUSAL<-NA
   RHQ$MENOPAUSAL[!is.na(RHQ$RHQ010)&!is.na(RHQ$RHQ060)]<-1
   RHQ$MENOPAUSAL[!is.na(RHQ$RHQ010)&is.na(RHQ$RHQ060)]<-0
-  RHQ<-RHQ[,c("SEQN","MENOPAUSAL","RHQ540","RHQ131","RHQ420")]
+  RHQ$RHD143[RHQ$RHD143==7|RHQ$RHD143==9]<-NA
+  RHQ<-RHQ[,c("SEQN","MENOPAUSAL","RHQ540","RHQ131","RHQ420","RHD143")]
   return(RHQ)
 }
 RHQ <-read_RHQ()
@@ -588,33 +589,71 @@ DATA$BEEF_VEAL_PORK_LAMB[!is.na(DATA$PF_MEAT)&is.na(DATA$BEEF_VEAL_PORK_LAMB)]<-
 #
 DATA<-DATA[DATA$RIDAGEYR>=20&DATA$RIDAGEYR<=79&DATA$ELIGSTAT!=3,]
 
-as.data.frame(colSums(is.na(DATA)))
+#as.data.frame(colSums(is.na(DATA)))
+write.csv(DATA,"DATA/Combined DATA/DATA.csv", row.names = FALSE)
 
-DATA<-DATA[!is.na(DATA$ALQ130),]
-DATA<-DATA[!is.na(DATA$TKCAL),]
-DATA<-DATA[!is.na(DATA$INDFMIN2),]
-DATA<-DATA[!is.na(DATA$INDFMPIR),]
-DATA<-DATA[!is.na(DATA$MORTSTAT),]
-DATA<-DATA[!is.na(DATA$BMXBMI),]
-DATA<-DATA[!is.na(DATA$BPQ080),]
-DATA<-DATA[!is.na(DATA$OCQ180),]
-DATA<-DATA[!is.na(DATA$BPXSY),]
-DATA<-DATA[!is.na(DATA$DPQ020),]
-DATA<-DATA[!is.na(DATA$SLD010H),]
-DATA<-DATA[!is.na(DATA$DSDS),]
-DATA<-DATA[!is.na(DATA$SMOKING),]
-DATA<-DATA[!is.na(DATA$DMDEDUC2),]
-DATA<-DATA[!is.na(DATA$DMDMARTL),]
-DATA<-DATA[!is.na(DATA$MCQ300A),]
-DATA<-DATA[!is.na(DATA$MCQ160F.1),]
-DATA<-DATA[!is.na(DATA$MCQ300C),]
-DATA<-DATA[!is.na(DATA$MCQ160C),]
-DATA<-DATA[!is.na(DATA$MCQ220),]
-DATA<-DATA[!is.na(DATA$DRQSDIET),]
-DATA<-DATA[!is.na(DATA$BPQ020),]
-DATA<-DATA[!is.na(DATA$DIQ010),]
 
-as.data.frame(colSums(is.na(DATA)))
 
-WOMEN<-DATA[DATA$RIAGENDR==2,]
-as.data.frame(colSums(is.na(WOMEN)))
+
+
+#Format
+model  <- lm(TKCAL ~ RIDAGEYR+DMDEDUC2, data = DATA)
+
+DATA$RIAGENDR <- factor(DATA$RIAGENDR, levels=c(2,1),labels=c("Female","Male"))
+DATA$DMDEDUC2 <- factor(DATA$DMDEDUC2, levels=c(1,2,3,4,5), labels=c("Less Than 9th Grade","9-11th Grade (Includes 12th grade with no diploma)",
+                                                                     "High School Grad/GED or Equivalent","Some College or AA degree","College Graduate or above"))
+DATA$RIDRETH1 <- factor(DATA$RIDRETH1,levels=c(1,2,3,4,5),labels=c("Mexican American","Other Hispanic","Non-Hispanic White","Non-Hispanic Black","Other Race - Including Multi-Racial"))
+
+DATA$DMDMARTL <- factor(DATA$DMDMARTL,levels=c(1,2,3,4,5,6),labels=c("Married","Widowed","Divorced","Separated","Never married","Living with partner"))
+
+for (i in 1:nrow(DATA)){
+  if (DATA$INDFMIN2[i]==1|DATA$INDFMIN2[i]==2|DATA$INDFMIN2[i]==3){
+    DATA$INDFMIN2[i]<-1
+  }
+  if (DATA$INDFMIN2[i]==4|DATA$INDFMIN2[i]==5|DATA$INDFMIN2[i]==6){
+    DATA$INDFMIN2[i]<-2
+  }
+  if (DATA$INDFMIN2[i]==7|DATA$INDFMIN2[i]==8|DATA$INDFMIN2[i]==9){
+    DATA$INDFMIN2[i]<-3
+  }
+  if (DATA$INDFMIN2[i]==10|DATA$INDFMIN2[i]==14|DATA$INDFMIN2[i]==15){
+    DATA$INDFMIN2[i]<-4
+  }
+  if (DATA$INDFMIN2[i]==12|DATA$INDFMIN2[i]==13){
+    DATA$INDFMIN2[i]<-NA
+  }
+}
+
+
+
+
+
+
+# DATA<-DATA[!is.na(DATA$ALQ130),]
+# DATA<-DATA[!is.na(DATA$TKCAL),]
+# DATA<-DATA[!is.na(DATA$INDFMIN2),]
+# DATA<-DATA[!is.na(DATA$INDFMPIR),]
+# DATA<-DATA[!is.na(DATA$MORTSTAT),]
+# DATA<-DATA[!is.na(DATA$BMXBMI),]
+# DATA<-DATA[!is.na(DATA$BPQ080),]
+# DATA<-DATA[!is.na(DATA$OCQ180),]
+# DATA<-DATA[!is.na(DATA$BPXSY),]
+# DATA<-DATA[!is.na(DATA$DPQ020),]
+# DATA<-DATA[!is.na(DATA$SLD010H),]
+# DATA<-DATA[!is.na(DATA$DSDS),]
+# DATA<-DATA[!is.na(DATA$SMOKING),]
+# DATA<-DATA[!is.na(DATA$DMDEDUC2),]
+# DATA<-DATA[!is.na(DATA$DMDMARTL),]
+# DATA<-DATA[!is.na(DATA$MCQ300A),]
+# DATA<-DATA[!is.na(DATA$MCQ160F.1),]
+# DATA<-DATA[!is.na(DATA$MCQ300C),]
+# DATA<-DATA[!is.na(DATA$MCQ160C),]
+# DATA<-DATA[!is.na(DATA$MCQ220),]
+# DATA<-DATA[!is.na(DATA$DRQSDIET),]
+# DATA<-DATA[!is.na(DATA$BPQ020),]
+# DATA<-DATA[!is.na(DATA$DIQ010),]
+# 
+# as.data.frame(colSums(is.na(DATA)))
+# 
+# WOMEN<-DATA[DATA$RIAGENDR==2,]
+# as.data.frame(colSums(is.na(WOMEN)))
