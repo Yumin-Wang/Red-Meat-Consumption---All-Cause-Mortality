@@ -50,5 +50,42 @@ DATA$MCQ220 <- factor(DATA$MCQ220,levels=c(2,1),labels=c("No","Yes"))
 DATA$MCQ300C <- factor(DATA$MCQ300C,levels=c(2,1),labels=c("No","Yes"))
 DATA$MCQ300A <- factor(DATA$MCQ300A,levels=c(2,1),labels=c("No","Yes"))
 DATA$MCQ160F <- factor(DATA$MCQ160F,levels=c(2,1),labels=c("No","Yes"))
+DATA$MENOPAUSAL <- factor(DATA$MENOPAUSAL,levels=c(0,1),labels=c("Premenopausal","Postmenopausal"))
+DATA$RHQ540 <- factor(DATA$RHQ540,levels=c(2,1),labels=c("No","Yes"))
+DATA$RHQ131 <- factor(DATA$RHQ131, levels=c(2,1),labels=c("Nulliparous","Parous"))
+DATA$RHQ420 <- factor(DATA$RHQ420, levels=c(2,1),labels=c("No","Yes"))
+DATA$RHD143 <- factor(DATA$RHD143, levels=c(2,1),labels=c("No","Yes"))
+DATA$ASPIRIN <- factor(DATA$ASPIRIN, levels=c(0,1),labels=c("No","Yes"))
+DATA$ATORVASTATIN <- factor(DATA$ATORVASTATIN, levels=c(0,1),labels=c("No","Yes"))
+DATA$IBUPROFEN <- factor(DATA$IBUPROFEN, levels=c(0,1),labels=c("No","Yes"))
+DATA$OPIUM <- factor(DATA$OPIUM, levels=c(0,1),labels=c("No","Yes"))
+DATA$STATIN <- factor(DATA$STATIN, levels=c(0,1),labels=c("No","Yes"))
+DATA$VALSARTAN <- factor(DATA$VALSARTAN, levels=c(0,1),labels=c("No","Yes"))
+DATA$DRQSDIET <- factor(DATA$DRQSDIET, levels=c(2,1),labels=c("No","Yes"))
+DATA$DSDS <- factor(DATA$DSDS, levels=c(2,1),labels=c("No","Yes"))
+DATA$MULTIVITAMIN <- factor(DATA$MULTIVITAMIN, levels=c(0,1), labels=c("No","Yes"))
+for (i in 1:nrow(DATA)){
+  if(!is.na(DATA$OCQ180[i])){
+    if (DATA$OCQ180[i]<=30&DATA$OCQ180[i]>0){
+      DATA$OCQ180[i]<-1
+    }
+    if (DATA$OCQ180[i]>30){
+      DATA$OCQ180[i]<-2
+    }
+  }
+}
+DATA$OCQ180<-factor(DATA$OCQ180,levels=c(0,1,2),labels=c("Non-worker","Part time worker","Full time worker"))
+DATA$ACTIVITY <- factor(DATA$ACTIVITY, levels=c(2,1),labels=c("No activity","Vigorous or moderate activity"))
+DATA$SMOKING<-factor(DATA$SMOKING,levels=c(0,1,2),labels=c("Non or light smoker","Moderate smoker","Heavy smoker"))
+
+
+
+
+
+
+
+
+
+
 
 
