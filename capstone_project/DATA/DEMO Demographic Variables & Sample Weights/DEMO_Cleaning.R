@@ -30,6 +30,25 @@ read_demo <- function(){
   DEMO$DMDMARTL[DEMO$DMDMARTL==99]<-NA
   DEMO$INDFMIN2[DEMO$INDFMIN2==77]<-NA
   DEMO$INDFMIN2[DEMO$INDFMIN2==99]<-NA
+  for (i in 1:nrow(DEMO)){
+    if(!is.na(DEMO$INDFMIN2[i])){
+      if (DEMO$INDFMIN2[i]==1|DEMO$INDFMIN2[i]==2|DEMO$INDFMIN2[i]==3){
+        DEMO$INDFMIN2[i]<-1
+      }
+      if (DEMO$INDFMIN2[i]==4|DEMO$INDFMIN2[i]==5|DEMO$INDFMIN2[i]==6){
+        DEMO$INDFMIN2[i]<-2
+      }
+      if (DEMO$INDFMIN2[i]==7|DEMO$INDFMIN2[i]==8|DEMO$INDFMIN2[i]==9){
+        DEMO$INDFMIN2[i]<-3
+      }
+      if (DEMO$INDFMIN2[i]==10|DEMO$INDFMIN2[i]==14|DEMO$INDFMIN2[i]==15){
+        DEMO$INDFMIN2[i]<-4
+      }
+      if (DEMO$INDFMIN2[i]==12|DEMO$INDFMIN2[i]==13){
+        DEMO$INDFMIN2[i]<-NA
+      }
+    }
+  }
   return(DEMO)
 }
 DEMO <-read_demo()
@@ -310,6 +329,13 @@ read_DPQ <- function(){
   remove(DPQ_H)
   DPQ$DPQ020[DPQ$DPQ020==7]<-NA
   DPQ$DPQ020[DPQ$DPQ020==9]<-NA
+  for (i in 1:nrow(DPQ)){
+    if(!is.na(DPQ$DPQ020[i])){
+      if (DPQ$DPQ020[i]==1|DPQ$DPQ020[i]==2|DPQ$DPQ020[i]==3){
+        DPQ$DPQ020[i]<-1
+      }
+    }
+  }
   #remove(DPQ_I)
   return(DPQ)
 }
@@ -512,6 +538,16 @@ read_OCQ <- function(){
   OCQ$OCQ180[OCQ$OCD150==4]<-0
   OCQ<-OCQ[,c("SEQN","OCQ180")]
   OCQ$OCQ180[OCQ$OCQ180==77777|OCQ$OCQ180==99999]<-NA
+  for (i in 1:nrow(OCQ)){
+    if(!is.na(OCQ$OCQ180[i])){
+      if (OCQ$OCQ180[i]<=30&OCQ$OCQ180[i]>0){
+        OCQ$OCQ180[i]<-1
+      }
+      if (OCQ$OCQ180[i]>30){
+        OCQ$OCQ180[i]<-2
+      }
+    }
+  }
   return(OCQ)
 }
 
@@ -550,6 +586,7 @@ read_PAQ <- function(){
   {do.call(cbind, lapply(x, is.nan))}
   PAQ$ACTIVITY[is.nan(PAQ$ACTIVITY)] <- NA
   PAQ<-PAQ[,c("SEQN","ACTIVITY","PAD680")]  
+  PAQ$PAD680[PAQ$PAD680>=1000]<-NA
   return(PAQ)
 }
 
@@ -586,43 +623,112 @@ DATA$BEEF_VEAL_PORK[!is.na(DATA$PF_MEAT)&is.na(DATA$BEEF_VEAL_PORK)]<-0
 DATA$BEEF_VEAL_PORK_LAMB[!is.na(DATA$PF_MEAT)&is.na(DATA$BEEF_VEAL_PORK_LAMB)]<-0
 
 
-#
-DATA<-DATA[DATA$RIDAGEYR>=20&DATA$RIDAGEYR<=79&DATA$ELIGSTAT!=3,]
+#Exclusion!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#Age younger or older than the age range considered
+DATA<-DATA[DATA$RIDAGEYR>=20&DATA$RIDAGEYR<=79,]
 
-#as.data.frame(colSums(is.na(DATA)))
+#Missing alcohol drinking, education, martial status, sleep, sedentary lifestyle, smoking
+DATA<-DATA[!is.na(DATA$ALQ130)&!is.na(DATA$DMDEDUC2)&!is.na(DATA$DMDMARTL)&!is.na(DATA$SLD010H)&!is.na(DATA$PAD680)&!is.na(DATA$SMOKING),]
+
+#Missing history of hypercholesterolemia, history of hypertension, history of diabetes, history of depression, history of cardiovascular disease, history of cancer, history of stroke, family history of diabetes, family history of myocardial infraction
+DATA<-DATA[!is.na(DATA$BPQ080)&!is.na(DATA$BPQ020)&!is.na(DATA$DIQ010)&!is.na(DATA$DPQ020)&!is.na(DATA$CARDIOVASCULAR)&!is.na(DATA$MCQ220)&!is.na(DATA$MCQ160F)&!is.na(DATA$MCQ300C)&!is.na(DATA$MCQ300A),]
+
+#Missing family annual income and PIR
+DATA<-DATA[!is.na(DATA$INDFMIN2)&!is.na(DATA$INDFMPIR),]
+
+#Missing occupation category
+DATA<-DATA[!is.na(DATA$OCQ180),]
+
+#Missing dietary variables: TKCAL, TCARB, TFIBE, TSFAT, TMFAT, TPFAT, TCHOL, TMAGN, F_FRUIT, V_TOTAL, PF_SEAFD, G_WHOLE, PF_MPS_TOTAL, PF_MEAT                               PF_CUREDMEAT, PF_POULT, PF_EGGS, PF_NUTSDS, PF_LEGUMES, D_TOTAL                                D_CHEESE, BEEF_VEAL, BEEF_VEAL_LAMB, BEEF_VEAL_PORK       BEEF_VEAL_PORK_LAMB
+#and missing special diet and dietary supplement intake
+DATA<-DATA[!is.na(DATA$TKCAL)&!is.na(DATA$DRQSDIET)&!is.na(DATA$DSDS),]
+
+#Missing Systolic blood pressure
+DATA<-DATA[!is.na(DATA$BPXSY),]
+
+#Extreme value of total energy intake
+DATA<-DATA[DATA$TKCAL>=500&DATA$TKCAL<=4500,]
+
+#Missing BMI, Height, Weight, or implausible BMI (<15 or ≥60 kg/m2)
+DATA<-DATA[!is.na(DATA$BMXBMI)&!is.na(DATA$BMXHT)&!is.na(DATA$BMXWT)&DATA$BMXBMI>=15&DATA$BMXBMI<60,]
+
+#Women are pregnant at baseline
+DATA<-DATA[(DATA$RHD143==2|is.na(DATA$RHD143)),]
+
+#Women who are missing Menopausal status, Hormone therapy, Parity, Oral contraceptive use
+DATA<-DATA[!(DATA$RIAGENDR==2&is.na(DATA$MENOPAUSAL))&!(DATA$RIAGENDR==2&is.na(DATA$RHQ540))&!(DATA$RIAGENDR==2&is.na(DATA$RHQ131))&!(DATA$RIAGENDR==2&is.na(DATA$RHQ420)),]
+
+#Not available for death linkage
+DATA<-DATA[DATA$ELIGSTAT!=3,]
+
+#Create variables !!!!!!
+DATA <-DATA %>% mutate(AGE_GROUP = case_when(RIDAGEYR >= 20 & RIDAGEYR <=29 ~ "20-29 years old",
+                                             RIDAGEYR >= 30 & RIDAGEYR <=39 ~ "30-39 years old",
+                                             RIDAGEYR >= 40 & RIDAGEYR <=49 ~ "40-49 years old",
+                                             RIDAGEYR >= 50 & RIDAGEYR <=59 ~ "50-59 years old",
+                                             RIDAGEYR >= 60 & RIDAGEYR <=69 ~ "60-69 years old",
+                                             RIDAGEYR >= 70 & RIDAGEYR <=79 ~ "70-79 years old"))
+
+
+
+DATA$INDFMPIR <- ntile(DATA$INDFMPIR, 5)  
+
+DATA$AGE_DEATH_CENSORED<-DATA$RIDAGEYR+(DATA$PERMTH_INT/12)
+
+DATA<- DATA %>% mutate(ALCOHOL_GROUP = case_when(ALQ130==0 ~ "Non-drinker",
+                                                 ALQ130>0&ALQ130<2 ~ "<2 drinks per day",
+                                                 ALQ130>=2 ~ ">=2 drinks per day"))
+
+DATA <- DATA %>% mutate(BMI_GROUP = case_when(BMXBMI<18.5 ~ "Underweight",
+                                              BMXBMI>=18.5&BMXBMI<25 ~"Healthy Weight",
+                                              BMXBMI>=25&BMXBMI<30 ~ "Overweight",
+                                              BMXBMI>=30~"Obesity"))
+DATA$BPXSY <- ntile(DATA$BPXSY, 5)  
+
+DATA$DIQ010[DATA$DIQ010==3]<-2
+                                              
+DATA <- DATA %>% mutate(SLD010H = case_when(SLD010H<=4 ~ "<=4 hours/night",
+                                            SLD010H>4&SLD010H<9 ~ "5-8 hours/night",
+                                                  SLD010H>=9 ~ ">=9 hours/night"))
+
+DATA$PAD680 <- ntile(DATA$PAD680, 5)  
+
+#Reorder columns
+
+
+
+
+
+
+
+#Women
+WOMEN<-DATA[DATA$RIAGENDR==2,]
+
+#Men
+Men<-DATA[DATA$RIAGENDR==1,]
+
 write.csv(DATA,"DATA/Combined DATA/DATA.csv", row.names = FALSE)
 
 
 
 
 
-#Format
-model  <- lm(TKCAL ~ RIDAGEYR+DMDEDUC2, data = DATA)
+#Missing smoking
+#DATA<-DATA[!is.na(DATA$SMOKING),]
 
-DATA$RIAGENDR <- factor(DATA$RIAGENDR, levels=c(2,1),labels=c("Female","Male"))
-DATA$DMDEDUC2 <- factor(DATA$DMDEDUC2, levels=c(1,2,3,4,5), labels=c("Less Than 9th Grade","9-11th Grade (Includes 12th grade with no diploma)",
-                                                                     "High School Grad/GED or Equivalent","Some College or AA degree","College Graduate or above"))
-DATA$RIDRETH1 <- factor(DATA$RIDRETH1,levels=c(1,2,3,4,5),labels=c("Mexican American","Other Hispanic","Non-Hispanic White","Non-Hispanic Black","Other Race - Including Multi-Racial"))
+#Not available for death linkage
+#DATA<-DATA[DATA$ELIGSTAT!=3,]
 
-DATA$DMDMARTL <- factor(DATA$DMDMARTL,levels=c(1,2,3,4,5,6),labels=c("Married","Widowed","Divorced","Separated","Never married","Living with partner"))
 
-for (i in 1:nrow(DATA)){
-  if (DATA$INDFMIN2[i]==1|DATA$INDFMIN2[i]==2|DATA$INDFMIN2[i]==3){
-    DATA$INDFMIN2[i]<-1
-  }
-  if (DATA$INDFMIN2[i]==4|DATA$INDFMIN2[i]==5|DATA$INDFMIN2[i]==6){
-    DATA$INDFMIN2[i]<-2
-  }
-  if (DATA$INDFMIN2[i]==7|DATA$INDFMIN2[i]==8|DATA$INDFMIN2[i]==9){
-    DATA$INDFMIN2[i]<-3
-  }
-  if (DATA$INDFMIN2[i]==10|DATA$INDFMIN2[i]==14|DATA$INDFMIN2[i]==15){
-    DATA$INDFMIN2[i]<-4
-  }
-  if (DATA$INDFMIN2[i]==12|DATA$INDFMIN2[i]==13){
-    DATA$INDFMIN2[i]<-NA
-  }
-}
+
+#
+#DATA<-DATA[DATA$RIDAGEYR>=20&DATA$RIDAGEYR<=79&DATA$ELIGSTAT!=3,]
+
+#as.data.frame(colSums(is.na(DATA)))
+#write.csv(DATA,"DATA/Combined DATA/DATA.csv", row.names = FALSE)
+
+
+
 
 
 
