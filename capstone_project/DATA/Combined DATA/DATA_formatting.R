@@ -9,7 +9,7 @@ DATA$DMDEDUC2 <- factor(DATA$DMDEDUC2, levels=c(1,2,3,4,5), labels=c("Less Than 
                                                                      "High School Grad/GED or Equivalent","Some College or AA degree","College Graduate or above"))
 DATA$RIDRETH1 <- factor(DATA$RIDRETH1,levels=c(1,2,3,4,5),labels=c("Mexican American","Other Hispanic","Non-Hispanic White","Non-Hispanic Black","Other Race - Including Multi-Racial"))
 
-DATA$DMDMARTL <- factor(DATA$DMDMARTL,levels=c(1,2,3,4,5,6),labels=c("Married","Widowed","Divorced","Separated","Never married","Living with partner"))
+DATA$DMDMARTL <- factor(DATA$DMDMARTL,levels=c(5,1,2,3,4,6),labels=c("Never married","Married","Widowed","Divorced","Separated","Living with partner"))
 
 DATA$INDFMIN2<-factor(DATA$INDFMIN2,levels=c(1,2,3,4),labels=c("$ 0 to $14,999","$15,000 to $34,999","$35,000 to $64,999","$65,000 to $100,000 and Over"))
 
@@ -21,7 +21,7 @@ DATA$SLD010H <- factor(DATA$SLD010H)
 DATA$BPQ080 <- factor(DATA$BPQ080,levels=c(2,1),labels=c("No","Yes"))
 DATA$BPQ020 <- factor(DATA$BPQ020,levels=c(2,1),labels=c("No","Yes"))
 DATA$DPQ020<-factor(DATA$DPQ020,levels=c(0,1),labels=c("No","Yes"))
-DATA$HSD010<-factor(DATA$HSD010,levels=c(1,2,3,4,5),labels=c("Excellent","Very good","Good","Fair","Poor"))
+DATA$HSD010<-factor(DATA$HSD010,levels=c(5,1,2,3,4),labels=c("Poor","Excellent","Very good","Good","Fair"))
 DATA$CARDIOVASCULAR <- factor(DATA$CARDIOVASCULAR,levels=c(2,1),labels=c("No","Yes"))
 DATA$MCQ220 <- factor(DATA$MCQ220,levels=c(2,1),labels=c("No","Yes"))
 DATA$MCQ300C <- factor(DATA$MCQ300C,levels=c(2,1),labels=c("No","Yes"))
@@ -31,7 +31,7 @@ DATA$MENOPAUSAL <- factor(DATA$MENOPAUSAL,levels=c(0,1),labels=c("Premenopausal"
 DATA$RHQ540 <- factor(DATA$RHQ540,levels=c(2,1),labels=c("No","Yes"))
 DATA$RHQ131 <- factor(DATA$RHQ131, levels=c(2,1),labels=c("Nulliparous","Parous"))
 DATA$RHQ420 <- factor(DATA$RHQ420, levels=c(2,1),labels=c("No","Yes"))
-DATA$RHD143 <- factor(DATA$RHD143, levels=c(2,1),labels=c("No","Yes"))
+#DATA$RHD143 <- factor(DATA$RHD143, levels=c(2,1),labels=c("No","Yes"))
 DATA$ASPIRIN <- factor(DATA$ASPIRIN, levels=c(0,1),labels=c("No","Yes"))
 DATA$ATORVASTATIN <- factor(DATA$ATORVASTATIN, levels=c(0,1),labels=c("No","Yes"))
 DATA$IBUPROFEN <- factor(DATA$IBUPROFEN, levels=c(0,1),labels=c("No","Yes"))
@@ -45,7 +45,7 @@ DATA$MULTIVITAMIN <- factor(DATA$MULTIVITAMIN, levels=c(0,1), labels=c("No","Yes
 DATA$OCQ180<-factor(DATA$OCQ180,levels=c(0,1,2),labels=c("Non-worker","Part time worker","Full time worker"))
 DATA$ACTIVITY <- factor(DATA$ACTIVITY, levels=c(2,1),labels=c("No activity","Vigorous or moderate activity"))
 DATA$SMOKING<-factor(DATA$SMOKING,levels=c(0,1,2),labels=c("Non or light smoker","Moderate smoker","Heavy smoker"))
-DATA$ALCOHOL_GROUP <- factor(DATA$ALCOHOL_GROUP)
+DATA$ALCOHOL_GROUP <- factor(DATA$ALCOHOL_GROUP,levels=c("Non-drinker","<2 drinks per day",">=2 drinks per day"))
 DATA$BMI_GROUP <- factor(DATA$BMI_GROUP)
 DATA$PAD680 <- factor(DATA$PAD680,levels=c(1,2,3,4,5),labels=c("Low", "Lower-middle","Middle","Upper-middle","High"))
 
