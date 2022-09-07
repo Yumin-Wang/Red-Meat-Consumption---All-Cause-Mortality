@@ -630,8 +630,8 @@ DATA<-DATA[DATA$RIDAGEYR>=20&DATA$RIDAGEYR<=79,]
 #Missing alcohol drinking, education, martial status, sleep, sedentary lifestyle, smoking
 DATA<-DATA[!is.na(DATA$ALQ130)&!is.na(DATA$DMDEDUC2)&!is.na(DATA$DMDMARTL)&!is.na(DATA$SLD010H)&!is.na(DATA$PAD680)&!is.na(DATA$SMOKING),]
 
-#Missing history of hypercholesterolemia, history of hypertension, history of diabetes, history of depression, history of cardiovascular disease, history of cancer, history of stroke, family history of diabetes, family history of myocardial infraction
-DATA<-DATA[!is.na(DATA$BPQ080)&!is.na(DATA$BPQ020)&!is.na(DATA$DIQ010)&!is.na(DATA$DPQ020)&!is.na(DATA$CARDIOVASCULAR)&!is.na(DATA$MCQ220)&!is.na(DATA$MCQ160F)&!is.na(DATA$MCQ300C)&!is.na(DATA$MCQ300A),]
+#Missing history of hypercholesterolemia, history of hypertension, history of diabetes, history of depression, history of cardiovascular disease, history of cancer, family history of diabetes, family history of myocardial infraction
+DATA<-DATA[!is.na(DATA$BPQ080)&!is.na(DATA$BPQ020)&!is.na(DATA$DIQ010)&!is.na(DATA$DPQ020)&!is.na(DATA$CARDIOVASCULAR)&!is.na(DATA$MCQ220)&!is.na(DATA$MCQ300C)&!is.na(DATA$MCQ300A),]
 
 #Missing family annual income and PIR
 DATA<-DATA[!is.na(DATA$INDFMIN2)&!is.na(DATA$INDFMPIR),]
@@ -649,8 +649,8 @@ DATA<-DATA[!is.na(DATA$BPXSY),]
 #Extreme value of total energy intake
 DATA<-DATA[DATA$TKCAL>=500&DATA$TKCAL<=4500,]
 
-#Missing BMI, Height, Weight, or implausible BMI (<15 or ≥60 kg/m2)
-DATA<-DATA[!is.na(DATA$BMXBMI)&!is.na(DATA$BMXHT)&!is.na(DATA$BMXWT)&DATA$BMXBMI>=15&DATA$BMXBMI<60,]
+#Missing BMI, or implausible BMI (<15 or ≥60 kg/m2)
+DATA<-DATA[!is.na(DATA$BMXBMI)&DATA$BMXBMI>=15&DATA$BMXBMI<60,]
 
 #Women are pregnant at baseline
 DATA<-DATA[(DATA$RHD143==2|is.na(DATA$RHD143)),]
@@ -695,13 +695,12 @@ DATA$PAD680 <- ntile(DATA$PAD680, 5)
 
 #Reorder columns
 DATA <- select(DATA,SEQN,SDDSRVYR,MORTSTAT,PERMTH_INT,RIDAGEYR,AGE_DEATH_CENSORED,AGE_GROUP,RIAGENDR,RIDRETH1,DMDEDUC2,
-               DMDMARTL,ALQ130,ALCOHOL_GROUP,SMOKING,OCQ180,ACTIVITY,PAD680,SLD010H,INDFMIN2,INDFMPIR,BMXHT,BMXWT,BMXBMI,BMI_GROUP,BPXSY,HSD010,BPQ080,
-               BPQ020,DIQ010,DPQ020,CARDIOVASCULAR,MCQ220,MCQ160F,MCQ300C,MCQ300A,MENOPAUSAL,RHQ540,RHQ131,RHQ420, ASPIRIN,ATORVASTATIN,,IBUPROFEN,
-               OPIUM,STATIN,VALSARTAN,DRQSDIET,DSDS,MULTIVITAMIN,PF_MPS_TOTAL,PF_CUREDMEAT,PF_MEAT,
-               PF_POULT, F_FRUIT,V_TOTAL, PF_SEAFD,G_WHOLE,PF_EGGS,PF_NUTSDS,PF_LEGUMES,D_TOTAL,D_CHEESE,TKCAL,TCARB,TFIBE,TSFAT,TMFAT,TPFAT,TCHOL,TMAGN)              
+               DMDMARTL,ALQ130,ALCOHOL_GROUP,SMOKING,OCQ180,ACTIVITY,PAD680,SLD010H,INDFMIN2,INDFMPIR,BMXBMI,BMI_GROUP,BPXSY,HSD010,BPQ080,
+               BPQ020,DIQ010,DPQ020,CARDIOVASCULAR,MCQ220,MCQ300C,MCQ300A,MENOPAUSAL,RHQ540,RHQ131,RHQ420, ASPIRIN,IBUPROFEN,
+               OPIUM,STATIN,VALSARTAN,DRQSDIET,DSDS,PF_CUREDMEAT,PF_MEAT,
+               PF_POULT, F_FRUIT,V_TOTAL, PF_SEAFD,G_WHOLE,PF_EGGS,PF_NUTSDS,PF_LEGUMES,D_TOTAL,TKCAL,TCARB,TFIBE,TSFAT,TMFAT,TPFAT,TCHOL,TMAGN)              
 
 #convert ounce to grams
-DATA$PF_MPS_TOTAL<-DATA$PF_MPS_TOTAL*28.35
 DATA$PF_CUREDMEAT<-DATA$PF_CUREDMEAT*28.35
 DATA$PF_MEAT<-DATA$PF_MEAT*28.35
 DATA$PF_POULT<-DATA$PF_POULT*28.35
