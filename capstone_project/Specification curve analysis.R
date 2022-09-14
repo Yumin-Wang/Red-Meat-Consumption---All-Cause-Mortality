@@ -521,7 +521,7 @@ p2<-plot_choices(combined_results,choices = c("Model","Meat","Adjusting_Variable
 
 #results<-results %>% mutate(DMDMARTL = ifelse(grepl("DMDMARTL",controls),"DMDMARTL","No"))
 
-plot_specs(plot_a=p1,plot_b=p2)
+plot_specs(plot_a=p1,plot_b=p2,rel_heights = c(1, 2),null=1)
 
 
 
