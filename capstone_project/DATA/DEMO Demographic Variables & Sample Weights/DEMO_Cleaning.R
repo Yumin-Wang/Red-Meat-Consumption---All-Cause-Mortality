@@ -662,12 +662,9 @@ DATA<-DATA[!(DATA$RIAGENDR==2&is.na(DATA$MENOPAUSAL))&!(DATA$RIAGENDR==2&is.na(D
 DATA<-DATA[DATA$ELIGSTAT!=3,]
 
 #Create variables !!!!!!
-DATA <-DATA %>% mutate(AGE_GROUP = case_when(RIDAGEYR >= 20 & RIDAGEYR <=29 ~ "20-29 years old",
-                                             RIDAGEYR >= 30 & RIDAGEYR <=39 ~ "30-39 years old",
-                                             RIDAGEYR >= 40 & RIDAGEYR <=49 ~ "40-49 years old",
-                                             RIDAGEYR >= 50 & RIDAGEYR <=59 ~ "50-59 years old",
-                                             RIDAGEYR >= 60 & RIDAGEYR <=69 ~ "60-69 years old",
-                                             RIDAGEYR >= 70 & RIDAGEYR <=79 ~ "70-79 years old"))
+DATA <-DATA %>% mutate(AGE_GROUP = case_when(RIDAGEYR >= 20 & RIDAGEYR <=39 ~ "20-39 years old",
+                                             RIDAGEYR >= 40 & RIDAGEYR <=59 ~ "40-59 years old",
+                                             RIDAGEYR >= 60 & RIDAGEYR <=79 ~ "60-79 years old"))
 
 
 
