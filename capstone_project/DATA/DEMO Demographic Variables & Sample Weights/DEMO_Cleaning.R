@@ -654,19 +654,25 @@ remove(DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ_RXQ_TOT_SUP_VITA_O
 
 #Total Dietary Food intake
 source("DATA/FPED_DR1TOT - Total food, First day/FOOD.r")
+#merge data
 DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ_RXQ_TOT_SUP_VITA_OCQ_PAQ_SMQ_FOOD <- merge(DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ_RXQ_TOT_SUP_VITA_OCQ_PAQ_SMQ,TOT_FOOD,by="SEQN",all.x=TRUE)
+#remove data set to save space
 remove(TOT_FOOD)
 remove(DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ_RXQ_TOT_SUP_VITA_OCQ_PAQ_SMQ)
 
-#NEW_MEAT
+#NEW_MEAT (We do not use this, this was used to explore variation in definition of unprocessed red meat)
 source("DATA/FPED_DR1IFF - Individual food, First day/INDIVIDUAL_FOOD.r")
+#merge data
 DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ_RXQ_TOT_SUP_VITA_OCQ_PAQ_SMQ_FOOD_MEAT <- merge(DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ_RXQ_TOT_SUP_VITA_OCQ_PAQ_SMQ_FOOD,NEW_MEAT,by="SEQN",all.x=TRUE)
+#remove data set to save space
 remove(NEW_MEAT)
 remove(DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ_RXQ_TOT_SUP_VITA_OCQ_PAQ_SMQ_FOOD)
-
+#give the final data set a name called "DATA"
 DATA<-DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ_RXQ_TOT_SUP_VITA_OCQ_PAQ_SMQ_FOOD_MEAT
+#remove original data set
 remove(DEMO_Mortality_ALQ_BMX_BPQ_BPX_DIQ_DPQ_HSQ_MCQ_RHQ_SLQ_RXQ_TOT_SUP_VITA_OCQ_PAQ_SMQ_FOOD_MEAT)
 
+#if meat has a value but in a particular definition it hasn't, then it should be 0.
 DATA$BEEF_VEAL[!is.na(DATA$PF_MEAT)&is.na(DATA$BEEF_VEAL)]<-0
 DATA$BEEF_VEAL_LAMB[!is.na(DATA$PF_MEAT)&is.na(DATA$BEEF_VEAL_LAMB)]<-0
 DATA$BEEF_VEAL_PORK[!is.na(DATA$PF_MEAT)&is.na(DATA$BEEF_VEAL_PORK)]<-0
@@ -674,42 +680,40 @@ DATA$BEEF_VEAL_PORK_LAMB[!is.na(DATA$PF_MEAT)&is.na(DATA$BEEF_VEAL_PORK_LAMB)]<-
 
 
 #Exclusion!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#Not eligble for death linkage
+DATA<-DATA[DATA$ELIGSTAT==1,]
+
 #Age younger or older than the age range considered
 DATA<-DATA[DATA$RIDAGEYR>=20&DATA$RIDAGEYR<=79,]
 
-#Missing alcohol drinking, education, martial status, sleep, sedentary lifestyle, smoking
-DATA<-DATA[!is.na(DATA$ALQ130)&!is.na(DATA$DMDEDUC2)&!is.na(DATA$DMDMARTL)&!is.na(DATA$SLD010H)&!is.na(DATA$PAD680)&!is.na(DATA$SMOKING),]
+#Missing lifestyle data: alcohol drinking, sleep, sedentary lifestyle, smoking
+DATA<-DATA[!is.na(DATA$ALQ130)&!is.na(DATA$SLD010H)&!is.na(DATA$PAD680)&!is.na(DATA$SMOKING),]
 
 #Missing history of hypercholesterolemia, history of hypertension, history of diabetes, history of depression, history of cardiovascular disease, history of cancer, family history of diabetes, family history of myocardial infraction
 DATA<-DATA[!is.na(DATA$BPQ080)&!is.na(DATA$BPQ020)&!is.na(DATA$DIQ010)&!is.na(DATA$DPQ020)&!is.na(DATA$CARDIOVASCULAR)&!is.na(DATA$MCQ220)&!is.na(DATA$MCQ300C)&!is.na(DATA$MCQ300A),]
 
-#Missing family annual income and PIR
-DATA<-DATA[!is.na(DATA$INDFMIN2)&!is.na(DATA$INDFMPIR),]
-
-#Missing occupation category
-DATA<-DATA[!is.na(DATA$OCQ180),]
+#Missing demographic data: education, martial status, family annual income, PIR, occupation
+DATA<-DATA[!is.na(DATA$DMDEDUC2)&!is.na(DATA$DMDMARTL)&!is.na(DATA$INDFMIN2)&!is.na(DATA$INDFMPIR)&!is.na(DATA$OCQ180),]
 
 #Missing dietary variables: TKCAL, TCARB, TFIBE, TSFAT, TMFAT, TPFAT, TCHOL, TMAGN, F_FRUIT, V_TOTAL, PF_SEAFD, G_WHOLE, PF_MPS_TOTAL, PF_MEAT                               PF_CUREDMEAT, PF_POULT, PF_EGGS, PF_NUTSDS, PF_LEGUMES, D_TOTAL                                D_CHEESE, BEEF_VEAL, BEEF_VEAL_LAMB, BEEF_VEAL_PORK       BEEF_VEAL_PORK_LAMB
-#and missing special diet and dietary supplement intake
+#and missing special diet and dietary supplement intake 
 DATA<-DATA[!is.na(DATA$TKCAL)&!is.na(DATA$DRQSDIET)&!is.na(DATA$DSDS),]
 
-#Missing Systolic blood pressure
-DATA<-DATA[!is.na(DATA$BPXSY),]
 
-#Extreme value of total energy intake
-DATA<-DATA[DATA$TKCAL>=500&DATA$TKCAL<=4500,]
-
-#Missing BMI, or implausible BMI (<15 or ≥60 kg/m2)
-DATA<-DATA[!is.na(DATA$BMXBMI)&DATA$BMXBMI>=15&DATA$BMXBMI<60,]
-
-#Women are pregnant at baseline
-DATA<-DATA[(DATA$RHD143==2|is.na(DATA$RHD143)),]
+#Missing physical examination data: Systolic blood pressure, Missing BMI
+DATA<-DATA[!is.na(DATA$BPXSY)&!is.na(DATA$BMXBMI),]
 
 #Women who are missing Menopausal status, Hormone therapy, Parity, Oral contraceptive use
 DATA<-DATA[!(DATA$RIAGENDR==2&is.na(DATA$MENOPAUSAL))&!(DATA$RIAGENDR==2&is.na(DATA$RHQ540))&!(DATA$RIAGENDR==2&is.na(DATA$RHQ131))&!(DATA$RIAGENDR==2&is.na(DATA$RHQ420)),]
 
-#Not available for death linkage
-DATA<-DATA[DATA$ELIGSTAT!=3,]
+#Women are pregnant at baseline
+DATA<-DATA[(DATA$RHD143==2|is.na(DATA$RHD143)),]
+
+#Implausible BMI (<15 or ≥60 kg/m2)
+DATA<-DATA[DATA$BMXBMI>=15&DATA$BMXBMI<60,]
+
+#Extreme value of total energy intake
+DATA<-DATA[DATA$TKCAL>=500&DATA$TKCAL<=4500,]
 
 #Create variables !!!!!!
 DATA <-DATA %>% mutate(AGE_GROUP = case_when(RIDAGEYR >= 20 & RIDAGEYR <=39 ~ "20-39 years old",
@@ -861,5 +865,5 @@ write.csv(DATA,"DATA/Combined DATA/DATA.csv", row.names = FALSE)
 # 
 # as.data.frame(colSums(is.na(DATA)))
 # 
-# WOMEN<-DATA[DATA$RIAGENDR==2,]
-# as.data.frame(colSums(is.na(WOMEN)))
+WOMEN<-DATA[DATA$RIAGENDR==2,]
+as.data.frame(colSums(is.na(WOMEN)))
