@@ -578,4 +578,60 @@ p2<-plot_choices(combined_results,choices = c("Model","MeatType","AdjustingVaria
 #make SCA plot
 plot_specs(plot_a=p1,plot_b=p2,rel_heights = c(1, 2),null=1)
 
+##############testing##################
+# #this function used to check if specification function performed as we expected.
+# library(stringr)
+# test<-function(results_table){
+#   index<-sample(1:nrow(results_table), 1)
+#   cat("row",index,"of results_table \n")
+#   test_table<-results_table[index,c("x","y","controls","estimate","conf.low","conf.high","GENDER","AGE_GROUP")]
+#   cat("test table\n")
+#   print(test_table)
+#   adj<-adjusting_variables[[1]][which(adjusting_variables[[2]]==test_table$controls)]
+#   if(grepl("DENSITY",test_table$x)&grepl("CONTINOUS",test_table$x)){
+#     mandatory<-"UNPROCESSED_RED_MEAT_DENSITY_CONTINOUS+"
+#     column<-1
+#   }
+#   if(grepl("DENSITY",test_table$x)&grepl("QUARTILE",test_table$x)){
+#     mandatory<-"UNPROCESSED_RED_MEAT_DENSITY_QUARTILE+"
+#     column<-3
+#   }
+#   if(grepl("DENSITY",test_table$x)&grepl("QUINTILE",test_table$x)){
+#     mandatory<-"UNPROCESSED_RED_MEAT_DENSITY_QUINTILES+"
+#     column<-4
+#   }
+#   if(grepl("STANDARD",test_table$x)&grepl("CONTINOUS",test_table$x)){
+#     mandatory<-"UNPROCESSED_RED_MEAT_STANDARD_CONTINOUS+"
+#     column<-1
+#   }
+#   if(grepl("STANDARD",test_table$x)&grepl("QUARTILE",test_table$x)){
+#     mandatory<-"+UNPROCESSED_RED_MEAT_STANDARD_QUARTILE+"
+#     column<-3
+#   }
+#   if(grepl("STANDARD",test_table$x)&grepl("QUINTILE",test_table$x)){
+#     mandatory<-"UNPROCESSED_RED_MEAT_STANDARD_QUINTILES+"
+#     column<-4
+#   }
+#   if(test_table$GENDER=="All Sex"&test_table$AGE_GROUP=="All Age"){
+#     data<-DATA
+#   }
+#   if(test_table$GENDER=="All Sex"&test_table$AGE_GROUP!="All Age"){
+#     data<-DATA[str_to_title(DATA$AGE_GROUP)==test_table$AGE_GROUP,]
+#   }
+#   if(test_table$GENDER!="All Sex"&test_table$AGE_GROUP=="All Age"){
+#     data<-DATA[DATA$GENDER==test_table$GENDER,]
+#   }
+#   if(test_table$GENDER!="All Sex"&test_table$AGE_GROUP!="All Age"){
+#     data<-DATA[DATA$GENDER==test_table$GENDER&str_to_title(DATA$AGE_GROUP)==test_table$AGE_GROUP,]
+#   }
+#   if(test_table$GENDER=="Female"){
+#     model<-coxph(formula=as.formula(paste(test_table$y,"~",mandatory,adj,"+AGE_CONTINIOUS+GENDER+SMOKING+TOTAL_ENERGY+MENOPAUSAL_STATUS+HORMONE_THERAPY_USE+PARITY+ORAL_CONTRACEPTIVE_USE")),data=data)  
+#   }
+#   if(test_table$GENDER!="Female"){
+#     model<-coxph(formula=as.formula(paste(test_table$y,"~",mandatory,adj,"+AGE_CONTINIOUS+GENDER+SMOKING+TOTAL_ENERGY")),data=data)  
+#   }
+#   cat("Model HR and CI \n")
+#   summary(model)$conf.int[column,]
+# }
 
+#######################################
