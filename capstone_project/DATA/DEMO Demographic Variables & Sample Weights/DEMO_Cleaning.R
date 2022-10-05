@@ -692,10 +692,10 @@ DATA<-DATA[!is.na(DATA$ALQ130)&!is.na(DATA$SLD010H)&!is.na(DATA$PAD680)&!is.na(D
 #Missing history of hypercholesterolemia, history of hypertension, history of diabetes, history of depression, history of cardiovascular disease, history of cancer, family history of diabetes, family history of myocardial infraction
 DATA<-DATA[!is.na(DATA$BPQ080)&!is.na(DATA$BPQ020)&!is.na(DATA$DIQ010)&!is.na(DATA$DPQ020)&!is.na(DATA$CARDIOVASCULAR)&!is.na(DATA$MCQ220)&!is.na(DATA$MCQ300C)&!is.na(DATA$MCQ300A),]
 
-#Missing demographic data: education, martial status, family annual income, PIR, occupation
+#Missing demographic data: education, marital status, family annual income, PIR, occupation
 DATA<-DATA[!is.na(DATA$DMDEDUC2)&!is.na(DATA$DMDMARTL)&!is.na(DATA$INDFMIN2)&!is.na(DATA$INDFMPIR)&!is.na(DATA$OCQ180),]
 
-#Missing dietary variables: TKCAL, TCARB, TFIBE, TSFAT, TMFAT, TPFAT, TCHOL, TMAGN, F_FRUIT, V_TOTAL, PF_SEAFD, G_WHOLE, PF_MPS_TOTAL, PF_MEAT                               PF_CUREDMEAT, PF_POULT, PF_EGGS, PF_NUTSDS, PF_LEGUMES, D_TOTAL                                D_CHEESE, BEEF_VEAL, BEEF_VEAL_LAMB, BEEF_VEAL_PORK       BEEF_VEAL_PORK_LAMB
+#Missing dietary variables: TKCAL, TCARB, TFIBE, TSFAT, TMFAT, TPFAT, TCHOL, TMAGN, F_FRUIT, V_TOTAL, PF_SEAFD, G_WHOLE, PF_MPS_TOTAL, PF_MEAT                               PF_CUREDMEAT, PF_POULT, PF_EGGS, PF_NUTSDS, PF_LEGUMES, D_TOTAL                                D_CHEESE, 
 #and missing special diet and dietary supplement intake 
 DATA<-DATA[!is.na(DATA$TKCAL)&!is.na(DATA$DRQSDIET)&!is.na(DATA$DSDS),]
 
@@ -716,32 +716,41 @@ DATA<-DATA[DATA$BMXBMI>=15&DATA$BMXBMI<60,]
 DATA<-DATA[DATA$TKCAL>=500&DATA$TKCAL<=4500,]
 
 #Create variables !!!!!!
+#For age, we create 3 age groups: 20-39 years old, 40-59 years old, 60-79 years old.
 DATA <-DATA %>% mutate(AGE_GROUP = case_when(RIDAGEYR >= 20 & RIDAGEYR <=39 ~ "20-39 years old",
                                              RIDAGEYR >= 40 & RIDAGEYR <=59 ~ "40-59 years old",
                                              RIDAGEYR >= 60 & RIDAGEYR <=79 ~ "60-79 years old"))
 
 
+#categorize ratio of family income to poverty (PIR) into fifth to denote their socioeconomic status
+DATA$INDFMPIR <- ntile(DATA$INDFMPIR, 5)
 
-DATA$INDFMPIR <- ntile(DATA$INDFMPIR, 5)  
-
+#Create age at death or censored, censor date 12.31.2019
 DATA$AGE_DEATH_CENSORED<-DATA$RIDAGEYR+(DATA$PERMTH_INT/12)
 
+#Categorize alcohol drinks per day into 3 categories: Non-drinker, <2 drinks per day, >=2 drinks per day
 DATA<- DATA %>% mutate(ALCOHOL_GROUP = case_when(ALQ130==0 ~ "Non-drinker",
                                                  ALQ130>0&ALQ130<2 ~ "<2 drinks per day",
                                                  ALQ130>=2 ~ ">=2 drinks per day"))
 
+#Categorize BMI into 4 groups: Underweight(<18.5), Healthy weight(18.5<=<25), Overweight(25<=<30), Obesity(>=30), base on definition of CDC.
 DATA <- DATA %>% mutate(BMI_GROUP = case_when(BMXBMI<18.5 ~ "Underweight",
                                               BMXBMI>=18.5&BMXBMI<25 ~"Healthy Weight",
                                               BMXBMI>=25&BMXBMI<30 ~ "Overweight",
                                               BMXBMI>=30~"Obesity"))
+
+
+#Categorize systolic blood pressure into fifth
 DATA$BPXSY <- ntile(DATA$BPXSY, 5)  
 
+#Borderline diabetes treated as no diabetes
 DATA$DIQ010[DATA$DIQ010==3]<-2
-                                              
+
+#Categorize sleep as 3 groups: <=4 hours, 5-8 hours, >=9 hours.                                            
 DATA <- DATA %>% mutate(SLD010H = case_when(SLD010H<=4 ~ "<=4 hours/night",
                                             SLD010H>4&SLD010H<9 ~ "5-8 hours/night",
                                                   SLD010H>=9 ~ ">=9 hours/night"))
-
+#Categorize sedentary lifestyle as fifth.
 DATA$PAD680 <- ntile(DATA$PAD680, 5)  
 
 
@@ -753,7 +762,7 @@ DATA <- select(DATA,SEQN,SDDSRVYR,MORTSTAT,PERMTH_INT,RIDAGEYR,AGE_DEATH_CENSORE
                OPIUM,STATIN,VALSARTAN,DRQSDIET,DSDS,PF_CUREDMEAT,PF_MEAT,
                PF_POULT, F_FRUIT,V_TOTAL, PF_SEAFD,G_WHOLE,PF_EGGS,PF_NUTSDS,PF_LEGUMES,D_TOTAL,TKCAL,TCARB,TFIBE,TSFAT,TMFAT,TPFAT,TCHOL,TMAGN)              
 
-#convert ounce to grams
+#Convert ounce equivalent to grams for: cured meat (processed red meat), unprocessed red meat, poultry, seafood, whole grain, eggs, nuts and seeds, legumes. 
 DATA$PF_CUREDMEAT<-DATA$PF_CUREDMEAT*28.35
 DATA$PF_MEAT<-DATA$PF_MEAT*28.35
 DATA$PF_POULT<-DATA$PF_POULT*28.35
@@ -763,13 +772,14 @@ DATA$PF_EGGS<-DATA$PF_EGGS*28.35
 DATA$PF_NUTSDS<-DATA$PF_NUTSDS*28.35
 DATA$PF_LEGUMES<-DATA$PF_LEGUMES*28.35
 
-
+#Make unprocessed red meat not only as continuous, but also quartiles and quintiles for standard model.
 DATA$PF_MEAT_STANDARD_QUARTILE<-DATA$PF_MEAT
 DATA$PF_MEAT_STANDARD_QUARTILE<-ntile(DATA$PF_MEAT_STANDARD_QUARTILE, 4)  
 
 DATA$PF_MEAT_STANDARD_QUINTILES<-DATA$PF_MEAT
 DATA$PF_MEAT_STANDARD_QUINTILES<-ntile(DATA$PF_MEAT_STANDARD_QUINTILES, 5) 
 
+#Divide unprocessed red meat by total energy and treat it not only as continuous, but also quartiles and quintiles for density model.
 DATA$PF_MEAT_DENSITY_CONTINOUS<-DATA$PF_MEAT/DATA$TKCAL
 
 DATA$PF_MEAT_DENSITY_QUARTILE<-DATA$PF_MEAT_DENSITY_CONTINOUS
@@ -810,60 +820,12 @@ DATA <- select(DATA,SEQN,SDDSRVYR,MORTSTAT,PERMTH_INT,RIDAGEYR,AGE_DEATH_CENSORE
                PF_POULT, F_FRUIT,V_TOTAL, PF_SEAFD,G_WHOLE,PF_EGGS,PF_NUTSDS,PF_LEGUMES,D_TOTAL,TKCAL,TCARB,TFIBE,TSFAT,TMFAT,TPFAT,TCHOL,TMAGN)              
 
 
-
+#write to a csv
 write.csv(DATA,"DATA/Combined DATA/DATA.csv", row.names = FALSE)
 
-
-
-
-
-#Missing smoking
-#DATA<-DATA[!is.na(DATA$SMOKING),]
-
-#Not available for death linkage
-#DATA<-DATA[DATA$ELIGSTAT!=3,]
-
-
-
-#
-#DATA<-DATA[DATA$RIDAGEYR>=20&DATA$RIDAGEYR<=79&DATA$ELIGSTAT!=3,]
-
+#testing for missing values
 #as.data.frame(colSums(is.na(DATA)))
-#write.csv(DATA,"DATA/Combined DATA/DATA.csv", row.names = FALSE)
-
-
-
-
-
-
-
-
-
-# DATA<-DATA[!is.na(DATA$ALQ130),]
-# DATA<-DATA[!is.na(DATA$TKCAL),]
-# DATA<-DATA[!is.na(DATA$INDFMIN2),]
-# DATA<-DATA[!is.na(DATA$INDFMPIR),]
-# DATA<-DATA[!is.na(DATA$MORTSTAT),]
-# DATA<-DATA[!is.na(DATA$BMXBMI),]
-# DATA<-DATA[!is.na(DATA$BPQ080),]
-# DATA<-DATA[!is.na(DATA$OCQ180),]
-# DATA<-DATA[!is.na(DATA$BPXSY),]
-# DATA<-DATA[!is.na(DATA$DPQ020),]
-# DATA<-DATA[!is.na(DATA$SLD010H),]
-# DATA<-DATA[!is.na(DATA$DSDS),]
-# DATA<-DATA[!is.na(DATA$SMOKING),]
-# DATA<-DATA[!is.na(DATA$DMDEDUC2),]
-# DATA<-DATA[!is.na(DATA$DMDMARTL),]
-# DATA<-DATA[!is.na(DATA$MCQ300A),]
-# DATA<-DATA[!is.na(DATA$MCQ160F.1),]
-# DATA<-DATA[!is.na(DATA$MCQ300C),]
-# DATA<-DATA[!is.na(DATA$MCQ160C),]
-# DATA<-DATA[!is.na(DATA$MCQ220),]
-# DATA<-DATA[!is.na(DATA$DRQSDIET),]
-# DATA<-DATA[!is.na(DATA$BPQ020),]
-# DATA<-DATA[!is.na(DATA$DIQ010),]
-# 
-# as.data.frame(colSums(is.na(DATA)))
-# 
-WOMEN<-DATA[DATA$RIAGENDR==2,]
-as.data.frame(colSums(is.na(WOMEN)))
+#WOMEN<-DATA[DATA$RIAGENDR==2,]
+#as.data.frame(colSums(is.na(WOMEN)))
+#MEN<-DATA[DATA$RIAGENDR==1,]
+#as.data.frame(colSums(is.na(MEN)))

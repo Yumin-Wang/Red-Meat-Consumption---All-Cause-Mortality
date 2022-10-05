@@ -1,46 +1,93 @@
+#install specification curve packages
 #install.packages("devtools")
 #devtools::install_github("masurp/specr")
+#load the data
 source("DATA/Combined DATA/DATA_formatting.r")
+#load required packages
 library(survival)
 library(tidyverse)
 library(specr)
+#set number of allowed warnings to be big
 options(nwarnings = 10000)  
+#set seed to make results reproducible
 set.seed(98431)
-#Variable_names<-Variable_names[50:54]
+
+###########################################################################################################################
+#Function: adjusting_variable_generator
+
+#Author: Yumin Wang
+
+#Creation Date:  10/5/2022 (version 4.1.2)
+
+#Purpose: This function takes each of the 48 optional adjusting variable names with Bernoulli(0.5) to form a collective sample of variable names.
+#         User can specify number of collective samples to be returned (parameter:n). The returned n collective samples will be randomly sampled from 2^48 available collective samples with replacement.
+#         For alcohol consumption and BMI, the function will not make continuous and categorical type of the variable appear in a collective sample at the same time.
+#         The function will return a list of two elements: 
+#         (1)n collective samples, variables in each collective sample will be linked via "+" sign. This expression will be used in cox regression for adjusting variables.
+#         (2)n collective samples corresponds to (1), variables in each collective sample is denoted as index and linked via "," sign. This expression will be used to make plots.
+
+# Required Parameters: 
+#         n: number of collective samples to be returned
+
+#Output:   The function will return a list of two elements: 
+#         (1)n collective samples, variables in each collective sample will be linked via "+" sign. This expression will be used in cox regression for adjusting variables.
+#         (2)n collective samples corresponds to (1), variables in each collective sample is denoted as index and linked via "," sign. This expression will be used to make plots.
+
+#Example: adjusting_variable_generator(n=2) returns a list with two elements with 2 collective samples:
+# [[1]]
+# [1] "COHORT_YEAR+RACE_ETHNICITY+MARTIAL_STATUS+ALCOHOL_CONTINOUS+ACTIVITY+SOCIOECONOMIC_STATUS+BMI_GROUP+HISTORY_OF_DIABETES+HISTORY_OF_DEPRESSION+HISTORY_OF_CARDIOVASCULAR_DISEASE+HISTORY_OF_CANCER_OR_MALIGNANCY+STATIN+PROCESSED_MEAT+EGGS+NUTS_SEEDS+LEGUMES+TOTAL_DAIRY+CARBOHYDRATES+DIETARY_FIBER+SATURATED_FAT+MONOUNSATURATED_FATTY_ACID+POLYUNSATURATED_FATTY_ACID"
+# [2] "EDUCATION+ALCOHOL_CONTINOUS+OCCUPATION+SOCIOECONOMIC_STATUS+BMI_CONTINOUS+HISTORY_OF_HYPERCHOLESTEROLEMIA+HISTORY_OF_DIABETES+HISTORY_OF_CANCER_OR_MALIGNANCY+FAMILY_HISTORY_OF_DIABETES+IBUPROFEN+OPIUM+STATIN+VALSARTAN+PROCESSED_MEAT+POULTRY+FRUITS+WHOLE_GRAIN+NUTS_SEEDS+TOTAL_DAIRY+CARBOHYDRATES+DIETARY_FIBER+MONOUNSATURATED_FATTY_ACID+MAGNESIUM" 
+# [[2]]
+# [1] "1,2,4,5,8,12,14,19,20,21,22,28,32,38,39,40,41,42,43,44,45,46"     
+# [2] "3,5,7,12,13,17,19,22,23,26,27,28,29,32,33,34,37,39,41,42,43,45,48"
+
+###########################################################################################################################
 adjusting_variable_generator<-function(n=10){
+  #get all variable names in analytical data
   Variable_names<-names(DATA)
+  #get all optional adjusting variable names in data
   Variable_names<-Variable_names[!Variable_names %in% c("SEQN","MORTSTAT","PERMTH_INT","AGE_CONTINIOUS","AGE_DEATH_CENSORED","AGE_GROUP","GENDER","SMOKING","MENOPAUSAL_STATUS","HORMONE_THERAPY_USE","PARITY","ORAL_CONTRACEPTIVE_USE","TOTAL_ENERGY","UNPROCESSED_RED_MEAT_STANDARD_CONTINOUS","UNPROCESSED_RED_MEAT_STANDARD_QUARTILE","UNPROCESSED_RED_MEAT_STANDARD_QUINTILES","UNPROCESSED_RED_MEAT_DENSITY_CONTINOUS","UNPROCESSED_RED_MEAT_DENSITY_QUARTILE","UNPROCESSED_RED_MEAT_DENSITY_QUINTILES","UNPROCESSED_RED_MEAT_STANDARD_QUARTILE_2nd","UNPROCESSED_RED_MEAT_STANDARD_QUARTILE_3rd","UNPROCESSED_RED_MEAT_STANDARD_QUARTILE_4th",
                                                         "UNPROCESSED_RED_MEAT_STANDARD_QUINTILE_2nd","UNPROCESSED_RED_MEAT_STANDARD_QUINTILE_3rd","UNPROCESSED_RED_MEAT_STANDARD_QUINTILE_4th","UNPROCESSED_RED_MEAT_STANDARD_QUINTILE_5th",
                                                         "UNPROCESSED_RED_MEAT_DENSITY_QUARTILE_2nd","UNPROCESSED_RED_MEAT_DENSITY_QUARTILE_3rd","UNPROCESSED_RED_MEAT_DENSITY_QUARTILE_4th",
                                                         "UNPROCESSED_RED_MEAT_DENSITY_QUINTILE_2nd","UNPROCESSED_RED_MEAT_DENSITY_QUINTILE_3rd","UNPROCESSED_RED_MEAT_DENSITY_QUINTILE_4th","UNPROCESSED_RED_MEAT_DENSITY_QUINTILE_5th")]
+  #initiate two vectors of length n to store each collective sample in corresponding format
   variable_combination = vector(length = n)
   variable_index = vector(length=n)
+  #iterate to get n collective samples
   for (i in 1:n){
+    #for each variable, drop a fair coin to denote include or not. 1 include, 0 not include.
     include<-rbinom(n=length(Variable_names), size=1, prob=0.5)
     #not include alcohol continuous or categorical at same time
     if(include[5]*include[6]==1){
+      #if alcohol continuous or categorical included at the same time, drop a coin, land on 1, then remove continuous version, land on 0, then remove categorical version.
       if(rbinom(n=1,size=1,prob=0.5)==1){include[5]<-0}
       else{include[6]<-0}
     }
     #not include bmi continuous or categorical at same time
     if(include[13]*include[14]==1){
+      #if bmi continuous or categorical included at the same time, drop a coin, land on 1, then remove continuous version, land on 0, then remove categorical version.
       if(rbinom(n=1,size=1,prob=0.5)==1){include[13]<-0}
       else{include[14]<-0}
     }
+    #get variables included in one collective sample
     sampled_variables<-Variable_names[include==1]
+    #link these variable names by "+" sign
     variable_combination[i]<-paste(sampled_variables,collapse="+")
+    #link these variable index by "," sign 
     variable_index[i]<-paste(which(include==1),collapse=",")
     
   }
+  #return n collective samples in two format
   return (list(variable_combination,variable_index))
 }
-
+#generate 20 collective samples
 adjusting_variables<-adjusting_variable_generator(n=20)
 
 
 
 ###############################################################################################
 #standard model plus continuous meat
+#define standard model's cox model.: For all model:  age(continuous), sex, smoking, total energy are adjusted. For female model, menopausal status, hormone therapy, parity, oral contraceptive use are additionally adjusted.
 cox_no_interaction_standard_continous<-function(formula,data){
   if(sum(data$GENDER=="Female")==nrow(data)){
     coxph(formula=as.formula(paste(formula,"+AGE_CONTINIOUS+GENDER+SMOKING+TOTAL_ENERGY+MENOPAUSAL_STATUS+HORMONE_THERAPY_USE+PARITY+ORAL_CONTRACEPTIVE_USE")),data=data)}
@@ -66,6 +113,7 @@ cox_no_interaction_standard_continous<-function(formula,data){
 #     coxph(formula=as.formula(paste(formula,"+UNPROCESSED_RED_MEAT_STANDARD_CONTINOUS:BMI_CONTINOUS+AGE_CONTINIOUS+GENDER+SMOKING+TOTAL_ENERGY")),data=data)}
 # }
 
+#Run specification curve analysis for standard continuous model, subgroup for age_group and gender
 results_standard_continous <- run_specs(df = DATA,
                       y = c("Surv(PERMTH_INT,MORTSTAT)"),
                       x = c("UNPROCESSED_RED_MEAT_STANDARD_CONTINOUS"), 
@@ -73,16 +121,20 @@ results_standard_continous <- run_specs(df = DATA,
                       controls = adjusting_variables[1],
                       subsets = list(GENDER = unique(DATA$GENDER),
                                      AGE_GROUP = unique(DATA$AGE_GROUP)))
+
+#drop no adjusting variables results
 results_standard_continous<-results_standard_continous[results_standard_continous$controls!="no covariates",]
+#covert names into index in control column for plotting purposes
 for(i in 1:nrow(results_standard_continous)){
   results_standard_continous$controls[i]<-adjusting_variables[[2]][which(adjusting_variables[[1]]==results_standard_continous$controls[i])]
 }
+#get HR, CI for 100 gram increase for continuous meat standard model
 results_standard_continous$estimate<-exp(results_standard_continous$estimate*100)
 results_standard_continous$conf.low<-exp(results_standard_continous$conf.low*100)
 results_standard_continous$conf.high<-exp(results_standard_continous$conf.high*100)
-#explore_warnings<-results_standard_continous[results_standard_continous$estimate>=10|results_standard_continous$estimate<=0.1,]
-
+#drop CI not in the range of (0.2,5) because they are not plausible CI
 results_standard_continous<-results_standard_continous[results_standard_continous$conf.low>=0.2&results_standard_continous$conf.high<=5,]
+#create gender and age group columns for plotting purposes
 results_standard_continous<-results_standard_continous %>% mutate(GENDER = case_when (grepl("GENDER = Female",subsets)~"Female",
                                grepl("GENDER = Male",subsets)~"Male",!grepl("GENDER = Female",subsets)&!grepl("GENDER = Male",subsets)~"All Sex"))
 results_standard_continous<-results_standard_continous %>% mutate(AGE_GROUP = case_when (grepl("AGE_GROUP = 20-39 years old",subsets)~"20-39 Years Old",
@@ -90,11 +142,15 @@ results_standard_continous<-results_standard_continous %>% mutate(AGE_GROUP = ca
                                                    grepl("AGE_GROUP = 60-79 years old",subsets)~"60-79 Years Old",
                                                    !grepl("AGE_GROUP = 20-39 years old",subsets)&!grepl("AGE_GROUP = 40-59 years old",subsets)&
                                                      !grepl("AGE_GROUP = 60-79 years old",subsets)~"All Age"))                             
+
 # results_standard_continous <- results_standard_continous %>% mutate(Interaction = case_when(model=="cox_no_interaction_standard_continous"~"No interaction included",
 #                                                       model=="cox_age_interaction_standard_continous"~"Include interaction only with Age",
 #                                                       model=="cox_bmi_interaction_standard_continous"~"Include interaction only with BMI",
 #                                                       model=="cox_sex_interaction_standard_continous"&GENDER!="All sex"~"No interaction included",
 #                                                       model=="cox_sex_interaction_standard_continous"&GENDER=="All sex"~"Include interaction only with Sex"))
+
+
+#create analytical_model column for plotting purposes
 results_standard_continous <- results_standard_continous %>% mutate(Analytical_model = "Standard Model")
 
 # p1<-plot_curve(results_standard_continous,ci=TRUE,null=1) +
@@ -114,6 +170,7 @@ results_standard_continous <- results_standard_continous %>% mutate(Analytical_m
 
 ###############################################################################
 #Density model continuous meat
+#same as above except for density model continuous meat
 cox_no_interaction_density_continous<-function(formula,data){
   if(sum(data$GENDER=="Female")==nrow(data)){
     coxph(formula=as.formula(paste(formula,"+AGE_CONTINIOUS+GENDER+SMOKING+TOTAL_ENERGY+MENOPAUSAL_STATUS+HORMONE_THERAPY_USE+PARITY+ORAL_CONTRACEPTIVE_USE")),data=data)}
@@ -150,12 +207,14 @@ results_density_continous<-results_density_continous[results_density_continous$c
 for(i in 1:nrow(results_density_continous)){
   results_density_continous$controls[i]<-adjusting_variables[[2]][which(adjusting_variables[[1]]==results_density_continous$controls[i])]
 }
+
+#for density model, calculate HR and CI for 100gram/2000kcal increase
 results_density_continous$estimate<-exp(results_density_continous$estimate*100/2000)
 results_density_continous$conf.low<-exp(results_density_continous$conf.low*100/2000)
 results_density_continous$conf.high<-exp(results_density_continous$conf.high*100/2000)
-
+#drop results not plausible CI not in (0.2,5)
 results_density_continous<-results_density_continous[results_density_continous$conf.low>=0.2&results_density_continous$conf.high<=5,]
-#results_density_continous<-results_density_continous[results_density_continous$std.error<=1,]
+
 results_density_continous<-results_density_continous %>% mutate(GENDER = case_when (grepl("GENDER = Female",subsets)~"Female",
                                                                                     grepl("GENDER = Male",subsets)~"Male",!grepl("GENDER = Female",subsets)&!grepl("GENDER = Male",subsets)~"All Sex"))
 results_density_continous<-results_density_continous %>% mutate(AGE_GROUP = case_when (grepl("AGE_GROUP = 20-39 years old",subsets)~"20-39 Years Old",
@@ -168,6 +227,8 @@ results_density_continous<-results_density_continous %>% mutate(AGE_GROUP = case
 #                                                                                           model=="cox_bmi_interaction_density_continous"~"Include interaction only with BMI",
 #                                                                                           model=="cox_sex_interaction_density_continous"&GENDER!="All sex"~"No interaction included",
 #                                                                                           model=="cox_sex_interaction_density_continous"&GENDER=="All sex"~"Include interaction only with Sex"))
+
+
 results_density_continous <- results_density_continous %>% mutate(Analytical_model = "Multivariable Nutrition Density Model")
 
 
@@ -183,6 +244,7 @@ results_density_continous <- results_density_continous %>% mutate(Analytical_mod
 
 #################################################################################################
 #standard model quartile meat
+#same as above except for standard model quartile meat
 cox_no_interaction_standard_quartile<-function(formula,data){
   if(sum(data$GENDER=="Female")==nrow(data)){
     coxph(formula=as.formula(paste(formula,"+UNPROCESSED_RED_MEAT_STANDARD_QUARTILE_2nd+UNPROCESSED_RED_MEAT_STANDARD_QUARTILE_3rd+AGE_CONTINIOUS+GENDER+SMOKING+TOTAL_ENERGY+MENOPAUSAL_STATUS+HORMONE_THERAPY_USE+PARITY+ORAL_CONTRACEPTIVE_USE")),data=data)}
@@ -223,6 +285,7 @@ for(i in 1:nrow(results_standard_quartile)){
   results_standard_quartile$controls[i]<-adjusting_variables[[2]][which(adjusting_variables[[1]]==results_standard_quartile$controls[i])]
 }
 
+#calculate HR and CI comparing highest quartile to lowest quartile
 results_standard_quartile$estimate<-exp(results_standard_quartile$estimate)
 results_standard_quartile$conf.low<-exp(results_standard_quartile$conf.low)
 results_standard_quartile$conf.high<-exp(results_standard_quartile$conf.high)
@@ -235,11 +298,13 @@ results_standard_quartile<-results_standard_quartile %>% mutate(AGE_GROUP = case
                                                                                        grepl("AGE_GROUP = 60-79 years old",subsets)~"60-79 Years Old",
                                                                                        !grepl("AGE_GROUP = 20-39 years old",subsets)&!grepl("AGE_GROUP = 40-59 years old",subsets)&
                                                                                          !grepl("AGE_GROUP = 60-79 years old",subsets)~"All Age"))                            
+
 # results_standard_quartile <- results_standard_quartile %>% mutate(Interaction = case_when(model=="cox_no_interaction_standard_quartile"~"No interaction included",
 #                                                                                           model=="cox_age_interaction_standard_quartile"~"Include interaction only with Age",
 #                                                                                           model=="cox_bmi_interaction_standard_quartile"~"Include interaction only with BMI",
 #                                                                                           model=="cox_sex_interaction_standard_quartile"&GENDER!="All sex"~"No interaction included",
 #                                                                                           model=="cox_sex_interaction_standard_quartile"&GENDER=="All sex"~"Include interaction only with Sex"))
+
 results_standard_quartile <- results_standard_quartile %>% mutate(Analytical_model = "Standard Model")
 
 # p1<-plot_curve(results_standard_quartile,ci=FALSE) +
@@ -256,6 +321,7 @@ results_standard_quartile <- results_standard_quartile %>% mutate(Analytical_mod
 
 #############################################################################
 #standard model quintile meat
+#same as above except for standard model quintile meat
 cox_no_interaction_standard_quintile<-function(formula,data){
   if(sum(data$GENDER=="Female")==nrow(data)){
     coxph(formula=as.formula(paste(formula,"+UNPROCESSED_RED_MEAT_STANDARD_QUINTILE_2nd+UNPROCESSED_RED_MEAT_STANDARD_QUINTILE_3rd+UNPROCESSED_RED_MEAT_STANDARD_QUINTILE_4th+AGE_CONTINIOUS+GENDER+SMOKING+TOTAL_ENERGY+MENOPAUSAL_STATUS+HORMONE_THERAPY_USE+PARITY+ORAL_CONTRACEPTIVE_USE")),data=data)}
@@ -298,6 +364,7 @@ for(i in 1:nrow(results_standard_quintile)){
   results_standard_quintile$controls[i]<-adjusting_variables[[2]][which(adjusting_variables[[1]]==results_standard_quintile$controls[i])]
 }
 
+#calculate HR and CI comparing highest quintile to lowest quintile
 results_standard_quintile$estimate<-exp(results_standard_quintile$estimate)
 results_standard_quintile$conf.low<-exp(results_standard_quintile$conf.low)
 results_standard_quintile$conf.high<-exp(results_standard_quintile$conf.high)
@@ -310,11 +377,13 @@ results_standard_quintile<-results_standard_quintile %>% mutate(AGE_GROUP = case
                                                                                        grepl("AGE_GROUP = 60-79 years old",subsets)~"60-79 Years Old",
                                                                                        !grepl("AGE_GROUP = 20-39 years old",subsets)&!grepl("AGE_GROUP = 40-59 years old",subsets)&
                                                                                          !grepl("AGE_GROUP = 60-79 years old",subsets)~"All Age"))                    
+
 # results_standard_quintile <- results_standard_quintile %>% mutate(Interaction = case_when(model=="cox_no_interaction_standard_quintile"~"No interaction included",
 #                                                                                           model=="cox_age_interaction_standard_quintile"~"Include interaction only with Age",
 #                                                                                           model=="cox_bmi_interaction_standard_quintile"~"Include interaction only with BMI",
 #                                                                                           model=="cox_sex_interaction_standard_quintile"&GENDER!="All sex"~"No interaction included",
 #                                                                                           model=="cox_sex_interaction_standard_quintile"&GENDER=="All sex"~"Include interaction only with Sex"))
+
 results_standard_quintile <- results_standard_quintile %>% mutate(Analytical_model = "Standard Model")
 
 # p1<-plot_curve(results_standard_quintile,ci=FALSE) +
@@ -331,6 +400,7 @@ results_standard_quintile <- results_standard_quintile %>% mutate(Analytical_mod
 
 ##########################################################################################################
 #Density model quartile meat
+#same as above except for density model quartile meat
 cox_no_interaction_density_quartile<-function(formula,data){
   if(sum(data$GENDER=="Female")==nrow(data)){
     coxph(formula=as.formula(paste(formula,"+UNPROCESSED_RED_MEAT_DENSITY_QUARTILE_2nd+UNPROCESSED_RED_MEAT_DENSITY_QUARTILE_3rd+AGE_CONTINIOUS+GENDER+SMOKING+TOTAL_ENERGY+MENOPAUSAL_STATUS+HORMONE_THERAPY_USE+PARITY+ORAL_CONTRACEPTIVE_USE")),data=data)}
@@ -370,7 +440,7 @@ results_density_quartile<-results_density_quartile[results_density_quartile$cont
 for(i in 1:nrow(results_density_quartile)){
   results_density_quartile$controls[i]<-adjusting_variables[[2]][which(adjusting_variables[[1]]==results_density_quartile$controls[i])]
 }
-
+#calculate HR and CI comparing highest quartile to lowest quartile
 results_density_quartile$estimate<-exp(results_density_quartile$estimate)
 results_density_quartile$conf.low<-exp(results_density_quartile$conf.low)
 results_density_quartile$conf.high<-exp(results_density_quartile$conf.high)
@@ -383,11 +453,13 @@ results_density_quartile<-results_density_quartile %>% mutate(AGE_GROUP = case_w
                                                                                      grepl("AGE_GROUP = 60-79 years old",subsets)~"60-79 Years Old",
                                                                                      !grepl("AGE_GROUP = 20-39 years old",subsets)&!grepl("AGE_GROUP = 40-59 years old",subsets)&
                                                                                        !grepl("AGE_GROUP = 60-79 years old",subsets)~"All Age"))                              
+
 # results_density_quartile <- results_density_quartile %>% mutate(Interaction = case_when(model=="cox_no_interaction_density_quartile"~"No interaction included",
 #                                                                                         model=="cox_age_interaction_density_quartile"~"Include interaction only with Age",
 #                                                                                         model=="cox_bmi_interaction_density_quartile"~"Include interaction only with BMI",
 #                                                                                         model=="cox_sex_interaction_density_quartile"&GENDER!="All sex"~"No interaction included",
 #                                                                                         model=="cox_sex_interaction_density_quartile"&GENDER=="All sex"~"Include interaction only with Sex"))
+
 results_density_quartile <- results_density_quartile %>% mutate(Analytical_model = "Multivariable Nutrition Density Model")
 
 # p1<-plot_curve(results_density_quartile,ci=FALSE) +
@@ -404,6 +476,7 @@ results_density_quartile <- results_density_quartile %>% mutate(Analytical_model
 
 ############################################################################################################
 #Density model quintle meat
+#same as above except for density model quintile meat
 cox_no_interaction_density_quintile<-function(formula,data){
   if(sum(data$GENDER=="Female")==nrow(data)){
     coxph(formula=as.formula(paste(formula,"+UNPROCESSED_RED_MEAT_DENSITY_QUINTILE_2nd+UNPROCESSED_RED_MEAT_DENSITY_QUINTILE_3rd+UNPROCESSED_RED_MEAT_DENSITY_QUINTILE_4th+AGE_CONTINIOUS+GENDER+SMOKING+TOTAL_ENERGY+MENOPAUSAL_STATUS+HORMONE_THERAPY_USE+PARITY+ORAL_CONTRACEPTIVE_USE")),data=data)}
@@ -445,7 +518,7 @@ results_density_quintile<-results_density_quintile[results_density_quintile$cont
 for(i in 1:nrow(results_density_quintile)){
   results_density_quintile$controls[i]<-adjusting_variables[[2]][which(adjusting_variables[[1]]==results_density_quintile$controls[i])]
 }
-
+#calculate HR and CI comparing highest quintile to lowest quintile
 results_density_quintile$estimate<-exp(results_density_quintile$estimate)
 results_density_quintile$conf.low<-exp(results_density_quintile$conf.low)
 results_density_quintile$conf.high<-exp(results_density_quintile$conf.high)
@@ -458,11 +531,13 @@ results_density_quintile<-results_density_quintile %>% mutate(AGE_GROUP = case_w
                                                                                      grepl("AGE_GROUP = 60-79 years old",subsets)~"60-79 Years Old",
                                                                                      !grepl("AGE_GROUP = 20-39 years old",subsets)&!grepl("AGE_GROUP = 40-59 years old",subsets)&
                                                                                        !grepl("AGE_GROUP = 60-79 years old",subsets)~"All Age"))                              
+
 # results_density_quintile <- results_density_quintile %>% mutate(Interaction = case_when(model=="cox_no_interaction_density_quintile"~"No interaction included",
 #                                                                                         model=="cox_age_interaction_density_quintile"~"Include interaction only with Age",
 #                                                                                         model=="cox_bmi_interaction_density_quintile"~"Include interaction only with BMI",
 #                                                                                         model=="cox_sex_interaction_density_quintile"&GENDER!="All sex"~"No interaction included",
 #                                                                                         model=="cox_sex_interaction_density_quintile"&GENDER=="All sex"~"Include interaction only with Sex"))
+
 results_density_quintile <- results_density_quintile %>% mutate(Analytical_model = "Multivariable Nutrition Density Model")
 
 # p1<-plot_curve(results_density_quintile,ci=FALSE) +
@@ -479,40 +554,28 @@ results_density_quintile <- results_density_quintile %>% mutate(Analytical_model
 
 ####################################################################################################
 
+#combine all 6 result tables
 combined_results<-rbind(results_standard_continous, results_standard_quartile,results_standard_quintile,results_density_continous,results_density_quartile,results_density_quintile)
-#combined_results<-rbind(results_standard_continous,results_standard_quartile)
+
+#unprocessed red meat can be continous, quartile or quintile
 combined_results$x[grepl('CONTINOUS', combined_results$x)]<-"Continuous"
 combined_results$x[grepl('QUARTILE', combined_results$x)]<-"Quartile"
 combined_results$x[grepl('QUINTILE', combined_results$x)]<-"Quintile"
+#rename columns
 combined_results<-combined_results%>%rename(MeatType=x,Model=Analytical_model,AdjustingVariables=controls,SexGroup=GENDER,AgeGroup=AGE_GROUP)
 
-
+#customize upper plot
 p1<-plot_curve(combined_results,ci=TRUE,null=1) +
   geom_hline(yintercept = 1, linetype = "dashed", color = "grey") +
   ylim(0, 5) +
   labs(x = "", y = "Hazard Ratio")+ theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+theme(text = element_text(size = 20))
 
+#customize lower plot
 p2<-plot_choices(combined_results,choices = c("Model","MeatType","AdjustingVariables","SexGroup","AgeGroup"),null=1)+
   labs(x = "Specifications")+ theme(panel.border = element_blank(), panel.grid.major = element_blank(),
   panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))+theme(text = element_text(size = 20))
 
-#results<-results %>% mutate(DMDMARTL = ifelse(grepl("DMDMARTL",controls),"DMDMARTL","No"))
-
+#make SCA plot
 plot_specs(plot_a=p1,plot_b=p2,rel_heights = c(1, 2),null=1)
 
 
-
-
-
-
-
-
-#subset<-DATA[DATA$GENDER=="Female",]
-#subset_2<-DATA[DATA$GENDER=="Male",]
-#subset_3<-DATA[DATA$AGE_GROUP=="60-69 years old",]
-####test
-#summary(coxph(Surv(PERMTH_INT,MORTSTAT)~UNPROCESSED_RED_MEAT_+GENDER,data=subset))
-#summary(coxph(Surv(PERMTH_INT,MORTSTAT)~UNPROCESSED_RED_MEAT_STANDARD_QUARTILE,data=DATA))
-#summary(coxph(Surv(PERMTH_INT,MORTSTAT)~UNPROCESSED_RED_MEAT_STANDARD_CONTINOUS+MENOPAUSAL_STATUS,data=DATA))
-
-#summary(coxph(Surv(PERMTH_INT,MORSTAT)~UNPROCESSED_RED_MEAT_STANDARD_CONTINOUS+AGE_CONTINIOUS+GENDER+SMOKING+TOTAL_ENERGY+MENOPAUSAL_STATUS+HORMONE_THERAPY_USE+PARITY+ORAL_CONTRACEPTIVE_USE+EDUCATION+ALCOHOL_GROUP+SLEEP+SOCIOECONOMIC_STATUS+BMI_GROUP+GENERAL_HEALTH_CONDITION+HISTORY_OF_HYPERCHOLESTEROLEMIA+HISTORY_OF_DIABETES+HISTORY_OF_DEPRESSION+ASPIRIN+STATIN+VALSARTAN+ON_SPECIAL_DIET+PROCESSED_MEAT+POULTRY+FRUITS+VEGETABLES+WHOLE_GRAIN+EGGS+LEGUMES+CARBOHYDRATES+SATURATED_FAT+POLYUNSATURATED_FATTY_ACID+CHOLESTEROL+MAGNESIUM,data=subset))
