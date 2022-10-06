@@ -709,7 +709,7 @@ DATA<-DATA[!(DATA$RIAGENDR==2&is.na(DATA$MENOPAUSAL))&!(DATA$RIAGENDR==2&is.na(D
 #Women are pregnant at baseline
 DATA<-DATA[(DATA$RHD143==2|is.na(DATA$RHD143)),]
 
-#Implausible BMI (<15 or ≥60 kg/m2)
+#Implausible BMI (<15 or >=60 kg/m2)
 DATA<-DATA[DATA$BMXBMI>=15&DATA$BMXBMI<60,]
 
 #Extreme value of total energy intake
