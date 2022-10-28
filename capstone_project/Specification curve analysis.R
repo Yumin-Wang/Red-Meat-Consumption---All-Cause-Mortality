@@ -19,8 +19,8 @@ set.seed(98431)
 
 #Creation Date:  10/5/2022 (version 4.1.2)
 
-#Purpose: This function takes each of the 48 optional adjusting variable names with Bernoulli(0.5) to form a collective sample of variable names.
-#         User can specify number of collective samples to be returned (parameter:n). The returned n collective samples will be randomly sampled from 2^48 available collective samples with replacement.
+#Purpose: This function takes each of the 47 optional adjusting variable names with Bernoulli(0.5) to form a collective sample of variable names.
+#         User can specify number of collective samples to be returned (parameter:n). The returned n collective samples will be randomly sampled from 2^47 available collective samples with replacement.
 #         For alcohol consumption and BMI, the function will not make continuous and categorical type of the variable appear in a collective sample at the same time.
 #         The function will return a list of two elements: 
 #         (1)n collective samples, variables in each collective sample will be linked via "+" sign. This expression will be used in cox regression for adjusting variables.
@@ -35,18 +35,20 @@ set.seed(98431)
 
 #Example: adjusting_variable_generator(n=2) returns a list with two elements with 2 collective samples:
 # [[1]]
-# [1] "COHORT_YEAR+RACE_ETHNICITY+MARTIAL_STATUS+ALCOHOL_CONTINOUS+ACTIVITY+SOCIOECONOMIC_STATUS+BMI_GROUP+HISTORY_OF_DIABETES+HISTORY_OF_DEPRESSION+HISTORY_OF_CARDIOVASCULAR_DISEASE+HISTORY_OF_CANCER_OR_MALIGNANCY+STATIN+PROCESSED_MEAT+EGGS+NUTS_SEEDS+LEGUMES+TOTAL_DAIRY+CARBOHYDRATES+DIETARY_FIBER+SATURATED_FAT+MONOUNSATURATED_FATTY_ACID+POLYUNSATURATED_FATTY_ACID"
-# [2] "EDUCATION+ALCOHOL_CONTINOUS+OCCUPATION+SOCIOECONOMIC_STATUS+BMI_CONTINOUS+HISTORY_OF_HYPERCHOLESTEROLEMIA+HISTORY_OF_DIABETES+HISTORY_OF_CANCER_OR_MALIGNANCY+FAMILY_HISTORY_OF_DIABETES+IBUPROFEN+OPIUM+STATIN+VALSARTAN+PROCESSED_MEAT+POULTRY+FRUITS+WHOLE_GRAIN+NUTS_SEEDS+TOTAL_DAIRY+CARBOHYDRATES+DIETARY_FIBER+MONOUNSATURATED_FATTY_ACID+MAGNESIUM" 
+# [1] "RACE_ETHNICITY+EDUCATION+ALCOHOL_GROUP+ACTIVITY+SLEEP+SOCIOECONOMIC_STATUS+BMI_CONTINOUS+SYSTOLIC_BLOOD_PRESSURE+FAMILY_HISTORY_OF_DIABETES+FAMILY_HISTORY_OF_MYOCARDIAL_INFRACTION+IBUPROFEN+ON_SPECIAL_DIET+DIETARY_SUPPLEMENT+PROCESSED_MEAT+POULTRY+FRUITS+WHOLE_GRAIN+EGGS+TOTAL_DAIRY+CARBOHYDRATES+MONOUNSATURATED_FATTY_ACID+CHOLESTEROL+MAGNESIUM"                                                
+# [2] "EDUCATION+MARTIAL_STATUS+ALCOHOL_CONTINOUS+ACTIVITY+SLEEP+FAMILY_INCOME+BMI_CONTINOUS+SYSTOLIC_BLOOD_PRESSURE+GENERAL_HEALTH_CONDITION+HISTORY_OF_HYPERTENSION+HISTORY_OF_DIABETES+HISTORY_OF_DEPRESSION+HISTORY_OF_CANCER_OR_MALIGNANCY+FAMILY_HISTORY_OF_DIABETES+FAMILY_HISTORY_OF_MYOCARDIAL_INFRACTION+ON_SPECIAL_DIET+DIETARY_SUPPLEMENT+PROCESSED_MEAT+POULTRY+FRUITS+LEGUMES+CHOLESTEROL+MAGNESIUM"
+# 
 # [[2]]
-# [1] "1,2,4,5,8,12,14,19,20,21,22,28,32,38,39,40,41,42,43,44,45,46"     
-# [2] "3,5,7,12,13,17,19,22,23,26,27,28,29,32,33,34,37,39,41,42,43,45,48"
+# [1] "1,2,5,7,9,11,12,14,22,23,25,29,30,31,32,33,36,37,40,41,44,46,47"
+# [2] "2,3,4,7,9,10,12,14,15,17,18,19,21,22,23,29,30,31,32,33,39,46,47"
+
 
 ###########################################################################################################################
 adjusting_variable_generator<-function(n=10){
   #get all variable names in analytical data
   Variable_names<-names(DATA)
   #get all optional adjusting variable names in data
-  Variable_names<-Variable_names[!Variable_names %in% c("SEQN","MORTSTAT","PERMTH_INT","AGE_CONTINIOUS","AGE_DEATH_CENSORED","AGE_GROUP","GENDER","SMOKING","MENOPAUSAL_STATUS","HORMONE_THERAPY_USE","PARITY","ORAL_CONTRACEPTIVE_USE","TOTAL_ENERGY","UNPROCESSED_RED_MEAT_STANDARD_CONTINOUS","UNPROCESSED_RED_MEAT_STANDARD_QUARTILE","UNPROCESSED_RED_MEAT_STANDARD_QUINTILES","UNPROCESSED_RED_MEAT_DENSITY_CONTINOUS","UNPROCESSED_RED_MEAT_DENSITY_QUARTILE","UNPROCESSED_RED_MEAT_DENSITY_QUINTILES","UNPROCESSED_RED_MEAT_STANDARD_QUARTILE_2nd","UNPROCESSED_RED_MEAT_STANDARD_QUARTILE_3rd","UNPROCESSED_RED_MEAT_STANDARD_QUARTILE_4th",
+  Variable_names<-Variable_names[!Variable_names %in% c("SEQN","MORTSTAT","COHORT_YEAR","PERMTH_INT","AGE_CONTINIOUS","AGE_DEATH_CENSORED","AGE_GROUP","GENDER","SMOKING","MENOPAUSAL_STATUS","HORMONE_THERAPY_USE","PARITY","ORAL_CONTRACEPTIVE_USE","TOTAL_ENERGY","UNPROCESSED_RED_MEAT_STANDARD_CONTINOUS","UNPROCESSED_RED_MEAT_STANDARD_QUARTILE","UNPROCESSED_RED_MEAT_STANDARD_QUINTILES","UNPROCESSED_RED_MEAT_DENSITY_CONTINOUS","UNPROCESSED_RED_MEAT_DENSITY_QUARTILE","UNPROCESSED_RED_MEAT_DENSITY_QUINTILES","UNPROCESSED_RED_MEAT_STANDARD_QUARTILE_2nd","UNPROCESSED_RED_MEAT_STANDARD_QUARTILE_3rd","UNPROCESSED_RED_MEAT_STANDARD_QUARTILE_4th",
                                                         "UNPROCESSED_RED_MEAT_STANDARD_QUINTILE_2nd","UNPROCESSED_RED_MEAT_STANDARD_QUINTILE_3rd","UNPROCESSED_RED_MEAT_STANDARD_QUINTILE_4th","UNPROCESSED_RED_MEAT_STANDARD_QUINTILE_5th",
                                                         "UNPROCESSED_RED_MEAT_DENSITY_QUARTILE_2nd","UNPROCESSED_RED_MEAT_DENSITY_QUARTILE_3rd","UNPROCESSED_RED_MEAT_DENSITY_QUARTILE_4th",
                                                         "UNPROCESSED_RED_MEAT_DENSITY_QUINTILE_2nd","UNPROCESSED_RED_MEAT_DENSITY_QUINTILE_3rd","UNPROCESSED_RED_MEAT_DENSITY_QUINTILE_4th","UNPROCESSED_RED_MEAT_DENSITY_QUINTILE_5th")]
@@ -58,16 +60,16 @@ adjusting_variable_generator<-function(n=10){
     #for each variable, drop a fair coin to denote include or not. 1 include, 0 not include.
     include<-rbinom(n=length(Variable_names), size=1, prob=0.5)
     #not include alcohol continuous or categorical at same time
-    if(include[5]*include[6]==1){
+    if(include[4]*include[5]==1){
       #if alcohol continuous or categorical included at the same time, drop a coin, land on 1, then remove continuous version, land on 0, then remove categorical version.
-      if(rbinom(n=1,size=1,prob=0.5)==1){include[5]<-0}
-      else{include[6]<-0}
+      if(rbinom(n=1,size=1,prob=0.5)==1){include[4]<-0}
+      else{include[5]<-0}
     }
     #not include bmi continuous or categorical at same time
-    if(include[13]*include[14]==1){
+    if(include[12]*include[13]==1){
       #if bmi continuous or categorical included at the same time, drop a coin, land on 1, then remove continuous version, land on 0, then remove categorical version.
-      if(rbinom(n=1,size=1,prob=0.5)==1){include[13]<-0}
-      else{include[14]<-0}
+      if(rbinom(n=1,size=1,prob=0.5)==1){include[12]<-0}
+      else{include[13]<-0}
     }
     #get variables included in one collective sample
     sampled_variables<-Variable_names[include==1]
@@ -90,9 +92,9 @@ adjusting_variables<-adjusting_variable_generator(n=20)
 #define standard model's cox model.: For all model:  age(continuous), sex, smoking, total energy are adjusted. For female model, menopausal status, hormone therapy, parity, oral contraceptive use are additionally adjusted.
 cox_no_interaction_standard_continous<-function(formula,data){
   if(sum(data$GENDER=="Female")==nrow(data)){
-    coxph(formula=as.formula(paste(formula,"+AGE_CONTINIOUS+GENDER+SMOKING+TOTAL_ENERGY+MENOPAUSAL_STATUS+HORMONE_THERAPY_USE+PARITY+ORAL_CONTRACEPTIVE_USE")),data=data)}
+    coxph(formula=as.formula(paste(formula,"+AGE_CONTINIOUS+GENDER+SMOKING+TOTAL_ENERGY+COHORT_YEAR+MENOPAUSAL_STATUS+HORMONE_THERAPY_USE+PARITY+ORAL_CONTRACEPTIVE_USE")),data=data)}
   else{
-    coxph(formula=as.formula(paste(formula,"+AGE_CONTINIOUS+GENDER+SMOKING+TOTAL_ENERGY")),data=data)}
+    coxph(formula=as.formula(paste(formula,"+AGE_CONTINIOUS+GENDER+SMOKING+TOTAL_ENERGY+COHORT_YEAR")),data=data)}
 }
 # cox_age_interaction_standard_continous<-function(formula,data){
 #   if(sum(data$GENDER=="Female")==nrow(data)){
@@ -173,9 +175,9 @@ results_standard_continous <- results_standard_continous %>% mutate(Analytical_m
 #same as above except for density model continuous meat
 cox_no_interaction_density_continous<-function(formula,data){
   if(sum(data$GENDER=="Female")==nrow(data)){
-    coxph(formula=as.formula(paste(formula,"+AGE_CONTINIOUS+GENDER+SMOKING+TOTAL_ENERGY+MENOPAUSAL_STATUS+HORMONE_THERAPY_USE+PARITY+ORAL_CONTRACEPTIVE_USE")),data=data)}
+    coxph(formula=as.formula(paste(formula,"+AGE_CONTINIOUS+GENDER+SMOKING+TOTAL_ENERGY+COHORT_YEAR+MENOPAUSAL_STATUS+HORMONE_THERAPY_USE+PARITY+ORAL_CONTRACEPTIVE_USE")),data=data)}
   else{
-    coxph(formula=as.formula(paste(formula,"+AGE_CONTINIOUS+GENDER+SMOKING+TOTAL_ENERGY")),data=data)}
+    coxph(formula=as.formula(paste(formula,"+AGE_CONTINIOUS+GENDER+SMOKING+TOTAL_ENERGY+COHORT_YEAR")),data=data)}
 }
 # cox_age_interaction_density_continous<-function(formula,data){
 #   if(sum(data$GENDER=="Female")==nrow(data)){
@@ -247,9 +249,9 @@ results_density_continous <- results_density_continous %>% mutate(Analytical_mod
 #same as above except for standard model quartile meat
 cox_no_interaction_standard_quartile<-function(formula,data){
   if(sum(data$GENDER=="Female")==nrow(data)){
-    coxph(formula=as.formula(paste(formula,"+UNPROCESSED_RED_MEAT_STANDARD_QUARTILE_2nd+UNPROCESSED_RED_MEAT_STANDARD_QUARTILE_3rd+AGE_CONTINIOUS+GENDER+SMOKING+TOTAL_ENERGY+MENOPAUSAL_STATUS+HORMONE_THERAPY_USE+PARITY+ORAL_CONTRACEPTIVE_USE")),data=data)}
+    coxph(formula=as.formula(paste(formula,"+UNPROCESSED_RED_MEAT_STANDARD_QUARTILE_2nd+UNPROCESSED_RED_MEAT_STANDARD_QUARTILE_3rd+AGE_CONTINIOUS+GENDER+SMOKING+TOTAL_ENERGY+COHORT_YEAR+MENOPAUSAL_STATUS+HORMONE_THERAPY_USE+PARITY+ORAL_CONTRACEPTIVE_USE")),data=data)}
   else{
-    coxph(formula=as.formula(paste(formula,"+UNPROCESSED_RED_MEAT_STANDARD_QUARTILE_2nd+UNPROCESSED_RED_MEAT_STANDARD_QUARTILE_3rd+AGE_CONTINIOUS+GENDER+SMOKING+TOTAL_ENERGY")),data=data)}
+    coxph(formula=as.formula(paste(formula,"+UNPROCESSED_RED_MEAT_STANDARD_QUARTILE_2nd+UNPROCESSED_RED_MEAT_STANDARD_QUARTILE_3rd+AGE_CONTINIOUS+GENDER+SMOKING+TOTAL_ENERGY+COHORT_YEAR")),data=data)}
 }
 
 # cox_age_interaction_standard_quartile<-function(formula,data){
@@ -324,9 +326,9 @@ results_standard_quartile <- results_standard_quartile %>% mutate(Analytical_mod
 #same as above except for standard model quintile meat
 cox_no_interaction_standard_quintile<-function(formula,data){
   if(sum(data$GENDER=="Female")==nrow(data)){
-    coxph(formula=as.formula(paste(formula,"+UNPROCESSED_RED_MEAT_STANDARD_QUINTILE_2nd+UNPROCESSED_RED_MEAT_STANDARD_QUINTILE_3rd+UNPROCESSED_RED_MEAT_STANDARD_QUINTILE_4th+AGE_CONTINIOUS+GENDER+SMOKING+TOTAL_ENERGY+MENOPAUSAL_STATUS+HORMONE_THERAPY_USE+PARITY+ORAL_CONTRACEPTIVE_USE")),data=data)}
+    coxph(formula=as.formula(paste(formula,"+UNPROCESSED_RED_MEAT_STANDARD_QUINTILE_2nd+UNPROCESSED_RED_MEAT_STANDARD_QUINTILE_3rd+UNPROCESSED_RED_MEAT_STANDARD_QUINTILE_4th+AGE_CONTINIOUS+GENDER+SMOKING+TOTAL_ENERGY+COHORT_YEAR+MENOPAUSAL_STATUS+HORMONE_THERAPY_USE+PARITY+ORAL_CONTRACEPTIVE_USE")),data=data)}
   else{
-    coxph(formula=as.formula(paste(formula,"+UNPROCESSED_RED_MEAT_STANDARD_QUINTILE_2nd+UNPROCESSED_RED_MEAT_STANDARD_QUINTILE_3rd+UNPROCESSED_RED_MEAT_STANDARD_QUINTILE_4th+AGE_CONTINIOUS+GENDER+SMOKING+TOTAL_ENERGY")),data=data)}
+    coxph(formula=as.formula(paste(formula,"+UNPROCESSED_RED_MEAT_STANDARD_QUINTILE_2nd+UNPROCESSED_RED_MEAT_STANDARD_QUINTILE_3rd+UNPROCESSED_RED_MEAT_STANDARD_QUINTILE_4th+AGE_CONTINIOUS+GENDER+SMOKING+TOTAL_ENERGY+COHORT_YEAR")),data=data)}
 }
 
 # cox_age_interaction_standard_quintile<-function(formula,data){
@@ -403,9 +405,9 @@ results_standard_quintile <- results_standard_quintile %>% mutate(Analytical_mod
 #same as above except for density model quartile meat
 cox_no_interaction_density_quartile<-function(formula,data){
   if(sum(data$GENDER=="Female")==nrow(data)){
-    coxph(formula=as.formula(paste(formula,"+UNPROCESSED_RED_MEAT_DENSITY_QUARTILE_2nd+UNPROCESSED_RED_MEAT_DENSITY_QUARTILE_3rd+AGE_CONTINIOUS+GENDER+SMOKING+TOTAL_ENERGY+MENOPAUSAL_STATUS+HORMONE_THERAPY_USE+PARITY+ORAL_CONTRACEPTIVE_USE")),data=data)}
+    coxph(formula=as.formula(paste(formula,"+UNPROCESSED_RED_MEAT_DENSITY_QUARTILE_2nd+UNPROCESSED_RED_MEAT_DENSITY_QUARTILE_3rd+AGE_CONTINIOUS+GENDER+SMOKING+TOTAL_ENERGY+COHORT_YEAR+MENOPAUSAL_STATUS+HORMONE_THERAPY_USE+PARITY+ORAL_CONTRACEPTIVE_USE")),data=data)}
   else{
-    coxph(formula=as.formula(paste(formula,"+UNPROCESSED_RED_MEAT_DENSITY_QUARTILE_2nd+UNPROCESSED_RED_MEAT_DENSITY_QUARTILE_3rd+AGE_CONTINIOUS+GENDER+SMOKING+TOTAL_ENERGY")),data=data)}
+    coxph(formula=as.formula(paste(formula,"+UNPROCESSED_RED_MEAT_DENSITY_QUARTILE_2nd+UNPROCESSED_RED_MEAT_DENSITY_QUARTILE_3rd+AGE_CONTINIOUS+GENDER+SMOKING+TOTAL_ENERGY+COHORT_YEAR")),data=data)}
 }
 
 # cox_age_interaction_density_quartile<-function(formula,data){
@@ -479,9 +481,9 @@ results_density_quartile <- results_density_quartile %>% mutate(Analytical_model
 #same as above except for density model quintile meat
 cox_no_interaction_density_quintile<-function(formula,data){
   if(sum(data$GENDER=="Female")==nrow(data)){
-    coxph(formula=as.formula(paste(formula,"+UNPROCESSED_RED_MEAT_DENSITY_QUINTILE_2nd+UNPROCESSED_RED_MEAT_DENSITY_QUINTILE_3rd+UNPROCESSED_RED_MEAT_DENSITY_QUINTILE_4th+AGE_CONTINIOUS+GENDER+SMOKING+TOTAL_ENERGY+MENOPAUSAL_STATUS+HORMONE_THERAPY_USE+PARITY+ORAL_CONTRACEPTIVE_USE")),data=data)}
+    coxph(formula=as.formula(paste(formula,"+UNPROCESSED_RED_MEAT_DENSITY_QUINTILE_2nd+UNPROCESSED_RED_MEAT_DENSITY_QUINTILE_3rd+UNPROCESSED_RED_MEAT_DENSITY_QUINTILE_4th+AGE_CONTINIOUS+GENDER+SMOKING+TOTAL_ENERGY+COHORT_YEAR+MENOPAUSAL_STATUS+HORMONE_THERAPY_USE+PARITY+ORAL_CONTRACEPTIVE_USE")),data=data)}
   else{
-    coxph(formula=as.formula(paste(formula,"+UNPROCESSED_RED_MEAT_DENSITY_QUINTILE_2nd+UNPROCESSED_RED_MEAT_DENSITY_QUINTILE_3rd+UNPROCESSED_RED_MEAT_DENSITY_QUINTILE_4th+AGE_CONTINIOUS+GENDER+SMOKING+TOTAL_ENERGY")),data=data)}
+    coxph(formula=as.formula(paste(formula,"+UNPROCESSED_RED_MEAT_DENSITY_QUINTILE_2nd+UNPROCESSED_RED_MEAT_DENSITY_QUINTILE_3rd+UNPROCESSED_RED_MEAT_DENSITY_QUINTILE_4th+AGE_CONTINIOUS+GENDER+SMOKING+TOTAL_ENERGY+COHORT_YEAR")),data=data)}
 }
 
 # cox_age_interaction_density_quintile<-function(formula,data){

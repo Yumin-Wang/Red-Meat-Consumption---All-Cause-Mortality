@@ -715,6 +715,15 @@ DATA<-DATA[DATA$BMXBMI>=15&DATA$BMXBMI<60,]
 #Extreme value of total energy intake
 DATA<-DATA[DATA$TKCAL>=500&DATA$TKCAL<=4500,]
 
+
+#calculate median, q10 and q90 for sedentary lifestyle, socioeconomic status, systolic blood pressure
+median(DATA$PAD680)
+quantile(DATA$PAD680,prob=c(0.1,0.9))
+median(DATA$INDFMPIR)
+quantile(DATA$INDFMPIR,prob=c(0.1,0.9))
+median(DATA$BPXSY)
+quantile(DATA$BPXSY,prob=c(0.1,0.9))
+
 #Create variables !!!!!!
 #For age, we create 3 age groups: 20-39 years old, 40-59 years old, 60-79 years old.
 DATA <-DATA %>% mutate(AGE_GROUP = case_when(RIDAGEYR >= 20 & RIDAGEYR <=39 ~ "20-39 years old",
