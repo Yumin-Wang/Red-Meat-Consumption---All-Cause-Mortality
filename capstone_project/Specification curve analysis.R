@@ -92,9 +92,12 @@ adjusting_variables<-adjusting_variable_generator(n=20)
 #define standard model's cox model.: For all model:  age(continuous), sex, smoking, total energy are adjusted. For female model, menopausal status, hormone therapy, parity, oral contraceptive use are additionally adjusted.
 cox_no_interaction_standard_continous<-function(formula,data){
   if(sum(data$GENDER=="Female")==nrow(data)){
-    coxph(formula=as.formula(paste(formula,"+AGE_CONTINIOUS+GENDER+SMOKING+TOTAL_ENERGY+COHORT_YEAR+MENOPAUSAL_STATUS+HORMONE_THERAPY_USE+PARITY+ORAL_CONTRACEPTIVE_USE")),data=data)}
+    coxph(formula=as.formula(paste(formula,"+AGE_CONTINIOUS+SMOKING+TOTAL_ENERGY+COHORT_YEAR+MENOPAUSAL_STATUS+HORMONE_THERAPY_USE+PARITY+ORAL_CONTRACEPTIVE_USE")),data=data)}
+  else if(sum(data$GENDER=="Male")==nrow(data)){
+    coxph(formula=as.formula(paste(formula,"+AGE_CONTINIOUS+SMOKING+TOTAL_ENERGY+COHORT_YEAR")),data=data)}
   else{
-    coxph(formula=as.formula(paste(formula,"+AGE_CONTINIOUS+GENDER+SMOKING+TOTAL_ENERGY+COHORT_YEAR")),data=data)}
+    coxph(formula=as.formula(paste(formula,"+AGE_CONTINIOUS+GENDER+SMOKING+TOTAL_ENERGY+COHORT_YEAR")),data=data)
+  }
 }
 # cox_age_interaction_standard_continous<-function(formula,data){
 #   if(sum(data$GENDER=="Female")==nrow(data)){
@@ -175,9 +178,12 @@ results_standard_continous <- results_standard_continous %>% mutate(Analytical_m
 #same as above except for density model continuous meat
 cox_no_interaction_density_continous<-function(formula,data){
   if(sum(data$GENDER=="Female")==nrow(data)){
-    coxph(formula=as.formula(paste(formula,"+AGE_CONTINIOUS+GENDER+SMOKING+TOTAL_ENERGY+COHORT_YEAR+MENOPAUSAL_STATUS+HORMONE_THERAPY_USE+PARITY+ORAL_CONTRACEPTIVE_USE")),data=data)}
+    coxph(formula=as.formula(paste(formula,"+AGE_CONTINIOUS+SMOKING+TOTAL_ENERGY+COHORT_YEAR+MENOPAUSAL_STATUS+HORMONE_THERAPY_USE+PARITY+ORAL_CONTRACEPTIVE_USE")),data=data)}
+  else if (sum(data$GENDER=="Male")==nrow(data)){
+    coxph(formula=as.formula(paste(formula,"+AGE_CONTINIOUS+SMOKING+TOTAL_ENERGY+COHORT_YEAR")),data=data)}
   else{
     coxph(formula=as.formula(paste(formula,"+AGE_CONTINIOUS+GENDER+SMOKING+TOTAL_ENERGY+COHORT_YEAR")),data=data)}
+
 }
 # cox_age_interaction_density_continous<-function(formula,data){
 #   if(sum(data$GENDER=="Female")==nrow(data)){
@@ -249,7 +255,9 @@ results_density_continous <- results_density_continous %>% mutate(Analytical_mod
 #same as above except for standard model quartile meat
 cox_no_interaction_standard_quartile<-function(formula,data){
   if(sum(data$GENDER=="Female")==nrow(data)){
-    coxph(formula=as.formula(paste(formula,"+UNPROCESSED_RED_MEAT_STANDARD_QUARTILE_2nd+UNPROCESSED_RED_MEAT_STANDARD_QUARTILE_3rd+AGE_CONTINIOUS+GENDER+SMOKING+TOTAL_ENERGY+COHORT_YEAR+MENOPAUSAL_STATUS+HORMONE_THERAPY_USE+PARITY+ORAL_CONTRACEPTIVE_USE")),data=data)}
+    coxph(formula=as.formula(paste(formula,"+UNPROCESSED_RED_MEAT_STANDARD_QUARTILE_2nd+UNPROCESSED_RED_MEAT_STANDARD_QUARTILE_3rd+AGE_CONTINIOUS+SMOKING+TOTAL_ENERGY+COHORT_YEAR+MENOPAUSAL_STATUS+HORMONE_THERAPY_USE+PARITY+ORAL_CONTRACEPTIVE_USE")),data=data)}
+  else if (sum(data$GENDER=="Male")==nrow(data)){
+    coxph(formula=as.formula(paste(formula,"+UNPROCESSED_RED_MEAT_STANDARD_QUARTILE_2nd+UNPROCESSED_RED_MEAT_STANDARD_QUARTILE_3rd+AGE_CONTINIOUS+SMOKING+TOTAL_ENERGY+COHORT_YEAR")),data=data)}
   else{
     coxph(formula=as.formula(paste(formula,"+UNPROCESSED_RED_MEAT_STANDARD_QUARTILE_2nd+UNPROCESSED_RED_MEAT_STANDARD_QUARTILE_3rd+AGE_CONTINIOUS+GENDER+SMOKING+TOTAL_ENERGY+COHORT_YEAR")),data=data)}
 }
@@ -326,7 +334,9 @@ results_standard_quartile <- results_standard_quartile %>% mutate(Analytical_mod
 #same as above except for standard model quintile meat
 cox_no_interaction_standard_quintile<-function(formula,data){
   if(sum(data$GENDER=="Female")==nrow(data)){
-    coxph(formula=as.formula(paste(formula,"+UNPROCESSED_RED_MEAT_STANDARD_QUINTILE_2nd+UNPROCESSED_RED_MEAT_STANDARD_QUINTILE_3rd+UNPROCESSED_RED_MEAT_STANDARD_QUINTILE_4th+AGE_CONTINIOUS+GENDER+SMOKING+TOTAL_ENERGY+COHORT_YEAR+MENOPAUSAL_STATUS+HORMONE_THERAPY_USE+PARITY+ORAL_CONTRACEPTIVE_USE")),data=data)}
+    coxph(formula=as.formula(paste(formula,"+UNPROCESSED_RED_MEAT_STANDARD_QUINTILE_2nd+UNPROCESSED_RED_MEAT_STANDARD_QUINTILE_3rd+UNPROCESSED_RED_MEAT_STANDARD_QUINTILE_4th+AGE_CONTINIOUS+SMOKING+TOTAL_ENERGY+COHORT_YEAR+MENOPAUSAL_STATUS+HORMONE_THERAPY_USE+PARITY+ORAL_CONTRACEPTIVE_USE")),data=data)}
+  else if(sum(data$GENDER=="Male")==nrow(data)){
+    coxph(formula=as.formula(paste(formula,"+UNPROCESSED_RED_MEAT_STANDARD_QUINTILE_2nd+UNPROCESSED_RED_MEAT_STANDARD_QUINTILE_3rd+UNPROCESSED_RED_MEAT_STANDARD_QUINTILE_4th+AGE_CONTINIOUS+SMOKING+TOTAL_ENERGY+COHORT_YEAR")),data=data)}
   else{
     coxph(formula=as.formula(paste(formula,"+UNPROCESSED_RED_MEAT_STANDARD_QUINTILE_2nd+UNPROCESSED_RED_MEAT_STANDARD_QUINTILE_3rd+UNPROCESSED_RED_MEAT_STANDARD_QUINTILE_4th+AGE_CONTINIOUS+GENDER+SMOKING+TOTAL_ENERGY+COHORT_YEAR")),data=data)}
 }
@@ -405,9 +415,13 @@ results_standard_quintile <- results_standard_quintile %>% mutate(Analytical_mod
 #same as above except for density model quartile meat
 cox_no_interaction_density_quartile<-function(formula,data){
   if(sum(data$GENDER=="Female")==nrow(data)){
-    coxph(formula=as.formula(paste(formula,"+UNPROCESSED_RED_MEAT_DENSITY_QUARTILE_2nd+UNPROCESSED_RED_MEAT_DENSITY_QUARTILE_3rd+AGE_CONTINIOUS+GENDER+SMOKING+TOTAL_ENERGY+COHORT_YEAR+MENOPAUSAL_STATUS+HORMONE_THERAPY_USE+PARITY+ORAL_CONTRACEPTIVE_USE")),data=data)}
+    coxph(formula=as.formula(paste(formula,"+UNPROCESSED_RED_MEAT_DENSITY_QUARTILE_2nd+UNPROCESSED_RED_MEAT_DENSITY_QUARTILE_3rd+AGE_CONTINIOUS+SMOKING+TOTAL_ENERGY+COHORT_YEAR+MENOPAUSAL_STATUS+HORMONE_THERAPY_USE+PARITY+ORAL_CONTRACEPTIVE_USE")),data=data)}
+  else if(sum(data$GENDER=="Male")==nrow(data)){
+    coxph(formula=as.formula(paste(formula,"+UNPROCESSED_RED_MEAT_DENSITY_QUARTILE_2nd+UNPROCESSED_RED_MEAT_DENSITY_QUARTILE_3rd+AGE_CONTINIOUS+SMOKING+TOTAL_ENERGY+COHORT_YEAR")),data=data)}
   else{
     coxph(formula=as.formula(paste(formula,"+UNPROCESSED_RED_MEAT_DENSITY_QUARTILE_2nd+UNPROCESSED_RED_MEAT_DENSITY_QUARTILE_3rd+AGE_CONTINIOUS+GENDER+SMOKING+TOTAL_ENERGY+COHORT_YEAR")),data=data)}
+  
+  
 }
 
 # cox_age_interaction_density_quartile<-function(formula,data){
@@ -481,9 +495,13 @@ results_density_quartile <- results_density_quartile %>% mutate(Analytical_model
 #same as above except for density model quintile meat
 cox_no_interaction_density_quintile<-function(formula,data){
   if(sum(data$GENDER=="Female")==nrow(data)){
-    coxph(formula=as.formula(paste(formula,"+UNPROCESSED_RED_MEAT_DENSITY_QUINTILE_2nd+UNPROCESSED_RED_MEAT_DENSITY_QUINTILE_3rd+UNPROCESSED_RED_MEAT_DENSITY_QUINTILE_4th+AGE_CONTINIOUS+GENDER+SMOKING+TOTAL_ENERGY+COHORT_YEAR+MENOPAUSAL_STATUS+HORMONE_THERAPY_USE+PARITY+ORAL_CONTRACEPTIVE_USE")),data=data)}
+    coxph(formula=as.formula(paste(formula,"+UNPROCESSED_RED_MEAT_DENSITY_QUINTILE_2nd+UNPROCESSED_RED_MEAT_DENSITY_QUINTILE_3rd+UNPROCESSED_RED_MEAT_DENSITY_QUINTILE_4th+AGE_CONTINIOUS+SMOKING+TOTAL_ENERGY+COHORT_YEAR+MENOPAUSAL_STATUS+HORMONE_THERAPY_USE+PARITY+ORAL_CONTRACEPTIVE_USE")),data=data)}
+  else if(sum(data$GENDER=="Male")==nrow(data)){
+    coxph(formula=as.formula(paste(formula,"+UNPROCESSED_RED_MEAT_DENSITY_QUINTILE_2nd+UNPROCESSED_RED_MEAT_DENSITY_QUINTILE_3rd+UNPROCESSED_RED_MEAT_DENSITY_QUINTILE_4th+AGE_CONTINIOUS+SMOKING+TOTAL_ENERGY+COHORT_YEAR")),data=data)}
   else{
     coxph(formula=as.formula(paste(formula,"+UNPROCESSED_RED_MEAT_DENSITY_QUINTILE_2nd+UNPROCESSED_RED_MEAT_DENSITY_QUINTILE_3rd+UNPROCESSED_RED_MEAT_DENSITY_QUINTILE_4th+AGE_CONTINIOUS+GENDER+SMOKING+TOTAL_ENERGY+COHORT_YEAR")),data=data)}
+  
+  
 }
 
 # cox_age_interaction_density_quintile<-function(formula,data){
@@ -580,6 +598,14 @@ p2<-plot_choices(combined_results,choices = c("Model","MeatType","AdjustingVaria
 #make SCA plot
 plot_specs(plot_a=p1,plot_b=p2,rel_heights = c(1, 2),null=1)
 
+#calculate median hazard ratio
+median(combined_results$estimate)
+
+#IQR for hazard ratio
+quantile(combined_results$estimate,prob=c(0.25,0.75))
+
+nrow(combined_results[combined_results$p.value<=0.05,])/nrow(combined_results)
+
 ##############testing##################
 # #this function used to check if specification function performed as we expected.
 # library(stringr)
@@ -637,3 +663,105 @@ plot_specs(plot_a=p1,plot_b=p2,rel_heights = c(1, 2),null=1)
 # }
 
 #######################################
+#check proportional hazard assumption
+#beneficial and significant effect for unprocessed red meat
+library(stringr)
+library(survminer)
+library(survival)
+
+ph_assumption<-function(results_table,row){
+  
+  test_table<-results_table[row,c("MeatType","y","AdjustingVariables","estimate","conf.low","conf.high","p.value","SexGroup","AgeGroup","Model")]
+  adj<-adjusting_variables[[1]][adjusting_variables[[2]] == test_table$AdjustingVariables]
+  cat("The model used is:",test_table$Model,"\n")
+  cat("The type of meat used is:",test_table$MeatType,"\n")
+  cat("The sex group used is:",test_table$SexGroup,"\n")
+  cat("The age group used is:",test_table$AgeGroup,"\n")
+  cat("The optional adjusting variables are: \n",adj,"\n")
+  cat("The index of optional adjusting variables are:\n",test_table$AdjustingVariables,"\n")
+  cat("The HR with 95% CI is",test_table$estimate,"(",test_table$conf.low,",",test_table$conf.high,") with p value =",test_table$p.value,"\n")
+  if(grepl("Density",test_table$Model)&grepl("Continuous",test_table$MeatType)){
+    mandatory<-"UNPROCESSED_RED_MEAT_DENSITY_CONTINOUS+"
+    column<-1
+  }
+  if(grepl("Density",test_table$Model)&grepl("Quartile",test_table$MeatType)){
+    mandatory<-"UNPROCESSED_RED_MEAT_DENSITY_QUARTILE+"
+    column<-3
+  }
+  if(grepl("Density",test_table$Model)&grepl("Quintile",test_table$MeatType)){
+    mandatory<-"UNPROCESSED_RED_MEAT_DENSITY_QUINTILES+"
+    column<-4
+  }
+  if(grepl("Standard",test_table$Model)&grepl("Continuous",test_table$MeatType)){
+    mandatory<-"UNPROCESSED_RED_MEAT_STANDARD_CONTINOUS+"
+    column<-1
+  }
+  if(grepl("Standard",test_table$Model)&grepl("Quartile",test_table$MeatType)){
+    mandatory<-"+UNPROCESSED_RED_MEAT_STANDARD_QUARTILE+"
+    column<-3
+  }
+  if(grepl("Standard",test_table$Model)&grepl("Quintile",test_table$MeatType)){
+    mandatory<-"UNPROCESSED_RED_MEAT_STANDARD_QUINTILES+"
+    column<-4
+  }
+
+  if(test_table$SexGroup=="All Sex"&test_table$AgeGroup=="All Age"){
+    data<-DATA
+  }
+  if(test_table$SexGroup=="All Sex"&test_table$AgeGroup!="All Age"){
+    data<-DATA[str_to_title(DATA$AGE_GROUP)==test_table$AgeGroup,]
+  }
+  if(test_table$SexGroup!="All Sex"&test_table$AgeGroup=="All Age"){
+    data<-DATA[DATA$GENDER==test_table$SexGroup,]
+  }
+  if(test_table$SexGroup!="All Sex"&test_table$AgeGroup!="All Age"){
+    data<-DATA[DATA$GENDER==test_table$SexGroup&str_to_title(DATA$AGE_GROUP)==test_table$AgeGroup,]
+  }
+  if(test_table$SexGroup=="Female"){
+    model<-coxph(formula=as.formula(paste(test_table$y,"~",mandatory,adj,"+COHORT_YEAR+AGE_CONTINIOUS+SMOKING+TOTAL_ENERGY+MENOPAUSAL_STATUS+HORMONE_THERAPY_USE+PARITY+ORAL_CONTRACEPTIVE_USE")),data=data)
+  }
+  if(test_table$SexGroup=="Male"){
+    model<-coxph(formula=as.formula(paste(test_table$y,"~",mandatory,adj,"+COHORT_YEAR+AGE_CONTINIOUS+SMOKING+TOTAL_ENERGY")),data=data)
+  }
+  if(test_table$SexGroup=="All Sex"){
+    model<-coxph(formula=as.formula(paste(test_table$y,"~",mandatory,adj,"+COHORT_YEAR+AGE_CONTINIOUS+GENDER+SMOKING+TOTAL_ENERGY")),data=data)
+  }
+  print(summary(model)$conf.int[column,])
+  print(summary(model)$coefficient[column,5])
+  test.shoen<-cox.zph(model,transform="rank")
+  return(test.shoen)
+  
+}
+
+bene_significant<-combined_results[combined_results$estimate<1&combined_results$p.value<=0.05,][c(2,40),]
+harm_significant<-combined_results[combined_results$estimate>1&combined_results$p.value<=0.05,][c(1,7),]
+non_significant<-combined_results[combined_results$p.value>0.05,][c(211),]
+
+test.shoen_1<-ph_assumption(bene_significant,row=1)
+ggcoxzph(test.shoen_1,ggtheme = theme_survminer(font.main = c(20, "plain", "black"),font.submain = c(20, "plain", "black"),font.x = c(20, "plain", "black"),
+                                              font.y = c(20, "plain", "black"),font.caption = c(20, "plain", "black"),font.tickslab = c(20, "plain", "black")))
+test.shoen_2<-ph_assumption(bene_significant,row=2)
+ggcoxzph(test.shoen_2,ggtheme = theme_survminer(font.main = c(20, "plain", "black"),font.submain = c(20, "plain", "black"),font.x = c(20, "plain", "black"),
+                                                font.y = c(20, "plain", "black"),font.caption = c(20, "plain", "black"),font.tickslab = c(20, "plain", "black")))
+test.shoen_3<-ph_assumption(harm_significant,row=1)
+ggcoxzph(test.shoen_3,ggtheme = theme_survminer(font.main = c(20, "plain", "black"),font.submain = c(20, "plain", "black"),font.x = c(20, "plain", "black"),
+                                                font.y = c(20, "plain", "black"),font.caption = c(20, "plain", "black"),font.tickslab = c(20, "plain", "black")))
+test.shoen_4<-ph_assumption(harm_significant,row=2)
+ggcoxzph(test.shoen_4,ggtheme = theme_survminer(font.main = c(20, "plain", "black"),font.submain = c(20, "plain", "black"),font.x = c(20, "plain", "black"),
+                                                font.y = c(20, "plain", "black"),font.caption = c(20, "plain", "black"),font.tickslab = c(20, "plain", "black")))
+test.shoen_5<-ph_assumption(non_significant,row=1)
+ggcoxzph(test.shoen_5,ggtheme = theme_survminer(font.main = c(20, "plain", "black"),font.submain = c(20, "plain", "black"),font.x = c(20, "plain", "black"),
+                                                font.y = c(20, "plain", "black"),font.caption = c(20, "plain", "black"),font.tickslab = c(20, "plain", "black")))
+
+#write to a csv
+write.csv(test.shoen_1$table,"./bene_1.csv", row.names = TRUE)
+#write to a csv
+write.csv(test.shoen_2$table,"./bene_2.csv", row.names = TRUE)
+#write to a csv
+write.csv(test.shoen_3$table,"./harm_1.csv", row.names = TRUE)
+#write to a csv
+write.csv(test.shoen_4$table,"./harm_2.csv", row.names = TRUE)
+#write to a csv
+write.csv(test.shoen_5$table,"./non_significant_1.csv", row.names = TRUE)
+
+
