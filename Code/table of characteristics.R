@@ -1,5 +1,5 @@
 #load the data
-source("DATA/Combined DATA/DATA_formatting.r")
+source("DATA_formatting.r")
 #get all variable names in analytical data
 Variable_names<-names(DATA)
 #get variables names that we will examine characteristics
