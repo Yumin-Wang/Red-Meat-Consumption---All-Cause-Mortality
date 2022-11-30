@@ -1,4 +1,4 @@
-# Read Meat Consumption & All-Cause Mortality
+# Red Meat Consumption & All-Cause Mortality
 This is the code for paper "Application of specification curve analysis to nutritional epidemiology: Red meat and all-cause mortality"
 
 Open the "Code" folder you will find the following:
