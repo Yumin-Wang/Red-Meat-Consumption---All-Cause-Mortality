@@ -588,12 +588,12 @@ combined_results<-combined_results%>%rename(MeatType=x,Model=Analytical_model,Ad
 p1<-plot_curve(combined_results,ci=TRUE,null=1) +
   geom_hline(yintercept = 1, linetype = "dashed", color = "grey") +
   ylim(0, 5) +
-  labs(x = "", y = "Hazard Ratio")+ theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+theme(text = element_text(size = 20))
+  labs(x = "", y = "Hazard Ratio")+ theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+theme(text = element_text(size = 20))+scale_color_manual(values = c("red", "blue","grey"))+theme(legend.position="none")
 
 #customize lower plot
 p2<-plot_choices(combined_results,choices = c("Model","MeatType","AdjustingVariables","SexGroup","AgeGroup"),null=1)+
   labs(x = "Specifications")+ theme(panel.border = element_blank(), panel.grid.major = element_blank(),
-  panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))+theme(text = element_text(size = 20))
+  panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))+theme(text = element_text(size = 20))+scale_color_manual(values = c("red", "blue","grey"))
 
 #make SCA plot
 plot_specs(plot_a=p1,plot_b=p2,rel_heights = c(1, 2),null=1)
@@ -605,6 +605,73 @@ median(combined_results$estimate)
 quantile(combined_results$estimate,prob=c(0.25,0.75))
 
 nrow(combined_results[combined_results$p.value<=0.05,])/nrow(combined_results)
+
+
+#####more beautiful plotting
+combined_results_men<-combined_results[combined_results$SexGroup=="Male",]
+combined_results_women<-combined_results[combined_results$SexGroup=="Female",]
+
+#calculate median hazard ratio for men
+median(combined_results_men$estimate)
+
+#IQR for hazard ratio for men
+quantile(combined_results_men$estimate,prob=c(0.25,0.75))
+
+#calculate median hazard ratio for women
+median(combined_results_women$estimate)
+
+#IQR for hazard ratio for women
+quantile(combined_results_women$estimate,prob=c(0.25,0.75))
+
+combined_results_continuous<-combined_results[combined_results$MeatType=="Continuous",]
+combined_results_quartile<-combined_results[combined_results$MeatType=="Quartile",]
+combined_results_quintile<-combined_results[combined_results$MeatType=="Quintile",]
+
+#continuous#
+#customize upper plot
+p1<-plot_curve(combined_results_continuous,ci=TRUE,null=1) +
+  geom_hline(yintercept = 1, linetype = "dashed", color = "grey") +
+  ylim(0, 5) +
+  labs(x = "", y = "Hazard Ratio")+ theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+theme(text = element_text(size = 25))+scale_color_manual(values = c("red", "blue","grey"))+theme(legend.position="none")
+
+#customize lower plot
+p2<-plot_choices(combined_results_continuous,choices = c("Model","AdjustingVariables","SexGroup","AgeGroup"),null=1)+
+  labs(x = "Specifications")+ theme(panel.border = element_blank(), panel.grid.major = element_blank(),
+                                    panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))+theme(text = element_text(size = 25))+scale_color_manual(values = c("red", "blue","grey"))
+
+#make SCA plot
+plot_specs(plot_a=p1,plot_b=p2,rel_heights = c(1, 2),null=1,label_size = 25)
+
+#quartile
+#customize upper plot
+p1<-plot_curve(combined_results_quartile,ci=TRUE,null=1) +
+  geom_hline(yintercept = 1, linetype = "dashed", color = "grey") +
+  ylim(0, 5) +
+  labs(x = "", y = "Hazard Ratio")+ theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+theme(text = element_text(size = 25))+scale_color_manual(values = c("blue","grey"))+theme(legend.position="none")
+
+#customize lower plot
+p2<-plot_choices(combined_results_quartile,choices = c("Model","AdjustingVariables","SexGroup","AgeGroup"),null=1)+
+  labs(x = "Specifications")+ theme(panel.border = element_blank(), panel.grid.major = element_blank(),
+                                    panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))+theme(text = element_text(size = 25))+scale_color_manual(values = c("blue","grey"))
+
+#make SCA plot
+plot_specs(plot_a=p1,plot_b=p2,rel_heights = c(1, 2),null=1,label_size = 25)
+
+#quintile
+#customize upper plot
+p1<-plot_curve(combined_results_quintile,ci=TRUE,null=1) +
+  geom_hline(yintercept = 1, linetype = "dashed", color = "grey") +
+  ylim(0, 5) +
+  labs(x = "", y = "Hazard Ratio")+ theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+theme(text = element_text(size = 25))+scale_color_manual(values = c("blue","grey"))+theme(legend.position="none")
+
+#customize lower plot
+p2<-plot_choices(combined_results_quintile,choices = c("Model","AdjustingVariables","SexGroup","AgeGroup"),null=1)+
+  labs(x = "Specifications")+ theme(panel.border = element_blank(), panel.grid.major = element_blank(),
+                                    panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))+theme(text = element_text(size = 25))+scale_color_manual(values = c("blue","grey"))
+
+#make SCA plot
+plot_specs(plot_a=p1,plot_b=p2,rel_heights = c(1, 2),null=1,label_size = 25)
+
 
 ##############testing##################
 #this function used to check if specification function performed as we expected. Run until line 578 and stop!!!
