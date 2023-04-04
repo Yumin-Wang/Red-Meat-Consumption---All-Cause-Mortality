@@ -588,15 +588,15 @@ combined_results<-combined_results%>%rename(MeatType=x,Model=Analytical_model,Ad
 p1<-plot_curve(combined_results,ci=TRUE,null=1) +
   geom_hline(yintercept = 1, linetype = "dashed", color = "grey") +
   ylim(0, 5) +
-  labs(x = "", y = "Hazard Ratio")+ theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+theme(text = element_text(size = 20))+scale_color_manual(values = c("red", "blue","grey"))+theme(legend.position="none")
+  labs(x = "", y = "Hazard Ratio")+ theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+theme(text = element_text(size = 25))+scale_color_manual(values = c("red", "blue","grey"))+theme(legend.position="none")
 
 #customize lower plot
 p2<-plot_choices(combined_results,choices = c("Model","MeatType","AdjustingVariables","SexGroup","AgeGroup"),null=1)+
   labs(x = "Specifications")+ theme(panel.border = element_blank(), panel.grid.major = element_blank(),
-  panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))+theme(text = element_text(size = 20))+scale_color_manual(values = c("red", "blue","grey"))
+  panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))+theme(text = element_text(size = 25))+scale_color_manual(values = c("red", "blue","grey"))
 
 #make SCA plot
-plot_specs(plot_a=p1,plot_b=p2,rel_heights = c(1, 2),null=1)
+plot_specs(plot_a=p1,plot_b=p2,rel_heights = c(1, 2),null=1,label_size = 25)
 
 #calculate median hazard ratio
 median(combined_results$estimate)
@@ -605,6 +605,29 @@ median(combined_results$estimate)
 quantile(combined_results$estimate,prob=c(0.25,0.75))
 
 nrow(combined_results[combined_results$p.value<=0.05,])/nrow(combined_results)
+
+
+#significant harmful results
+harmful<-combined_results[combined_results$p.value<=0.05&combined_results$estimate>1,]
+
+#calculate median hazard ratio for men
+median(harmful$estimate)
+
+#IQR for hazard ratio for men
+quantile(harmful$estimate,prob=c(0.25,0.75))
+
+
+#significant beneficial results
+beneficial<-combined_results[combined_results$p.value<=0.05&combined_results$estimate<1,]
+
+#calculate median hazard ratio for men
+median(beneficial$estimate)
+
+#IQR for hazard ratio for men
+quantile(beneficial$estimate,prob=c(0.25,0.75))
+
+
+
 
 
 #####more beautiful plotting
@@ -730,3 +753,230 @@ plot_specs(plot_a=p1,plot_b=p2,rel_heights = c(1, 2),null=1,label_size = 25)
 # }
 
 #######################################
+
+#Bootstrap: permutation for red meat continuous variable
+library(dplyr)
+PERMUTE_DATA<-DATA
+set.seed(98431)
+PERMUTE_DATA$UNPROCESSED_RED_MEAT_STANDARD_CONTINOUS<-sample(PERMUTE_DATA$UNPROCESSED_RED_MEAT_STANDARD_CONTINOUS)
+
+#Make unprocessed red meat not only as continuous, but also quartiles and quintiles for standard model.
+PERMUTE_DATA$UNPROCESSED_RED_MEAT_STANDARD_QUARTILE<-PERMUTE_DATA$UNPROCESSED_RED_MEAT_STANDARD_CONTINOUS
+PERMUTE_DATA$UNPROCESSED_RED_MEAT_STANDARD_QUARTILE<-ntile(PERMUTE_DATA$UNPROCESSED_RED_MEAT_STANDARD_QUARTILE, 4) 
+
+PERMUTE_DATA$UNPROCESSED_RED_MEAT_STANDARD_QUINTILES<-PERMUTE_DATA$UNPROCESSED_RED_MEAT_STANDARD_CONTINOUS
+PERMUTE_DATA$UNPROCESSED_RED_MEAT_STANDARD_QUINTILES<-ntile(PERMUTE_DATA$UNPROCESSED_RED_MEAT_STANDARD_QUINTILES, 5)  
+
+
+#Divide unprocessed red meat by total energy and treat it not only as continuous, but also quartiles and quintiles for density model.
+PERMUTE_DATA$UNPROCESSED_RED_MEAT_DENSITY_CONTINOUS<-PERMUTE_DATA$UNPROCESSED_RED_MEAT_STANDARD_CONTINOUS/PERMUTE_DATA$TOTAL_ENERGY
+
+PERMUTE_DATA$UNPROCESSED_RED_MEAT_DENSITY_QUARTILE<-PERMUTE_DATA$UNPROCESSED_RED_MEAT_DENSITY_CONTINOUS
+PERMUTE_DATA$UNPROCESSED_RED_MEAT_DENSITY_QUARTILE<-ntile(PERMUTE_DATA$UNPROCESSED_RED_MEAT_DENSITY_QUARTILE, 4) 
+
+PERMUTE_DATA$UNPROCESSED_RED_MEAT_DENSITY_QUINTILES<-PERMUTE_DATA$UNPROCESSED_RED_MEAT_DENSITY_CONTINOUS
+PERMUTE_DATA$UNPROCESSED_RED_MEAT_DENSITY_QUINTILES<-ntile(PERMUTE_DATA$UNPROCESSED_RED_MEAT_DENSITY_QUINTILES, 5)  
+
+#create binary variable for standard meat quartile and quintile
+PERMUTE_DATA$UNPROCESSED_RED_MEAT_STANDARD_QUARTILE_2nd<-ifelse(PERMUTE_DATA$UNPROCESSED_RED_MEAT_STANDARD_QUARTILE==2,1,0)
+PERMUTE_DATA$UNPROCESSED_RED_MEAT_STANDARD_QUARTILE_3rd<-ifelse(PERMUTE_DATA$UNPROCESSED_RED_MEAT_STANDARD_QUARTILE==3,1,0)
+PERMUTE_DATA$UNPROCESSED_RED_MEAT_STANDARD_QUARTILE_4th<-ifelse(PERMUTE_DATA$UNPROCESSED_RED_MEAT_STANDARD_QUARTILE==4,1,0)
+
+PERMUTE_DATA$UNPROCESSED_RED_MEAT_STANDARD_QUINTILE_2nd<-ifelse(PERMUTE_DATA$UNPROCESSED_RED_MEAT_STANDARD_QUINTILES==2,1,0)
+PERMUTE_DATA$UNPROCESSED_RED_MEAT_STANDARD_QUINTILE_3rd<-ifelse(PERMUTE_DATA$UNPROCESSED_RED_MEAT_STANDARD_QUINTILES==3,1,0)
+PERMUTE_DATA$UNPROCESSED_RED_MEAT_STANDARD_QUINTILE_4th<-ifelse(PERMUTE_DATA$UNPROCESSED_RED_MEAT_STANDARD_QUINTILES==4,1,0)
+PERMUTE_DATA$UNPROCESSED_RED_MEAT_STANDARD_QUINTILE_5th<-ifelse(PERMUTE_DATA$UNPROCESSED_RED_MEAT_STANDARD_QUINTILES==5,1,0)
+
+
+#create binary variable for density meat quartile and quintile
+PERMUTE_DATA$UNPROCESSED_RED_MEAT_DENSITY_QUARTILE_2nd<-ifelse(PERMUTE_DATA$UNPROCESSED_RED_MEAT_DENSITY_QUARTILE==2,1,0)
+PERMUTE_DATA$UNPROCESSED_RED_MEAT_DENSITY_QUARTILE_3rd<-ifelse(PERMUTE_DATA$UNPROCESSED_RED_MEAT_DENSITY_QUARTILE==3,1,0)
+PERMUTE_DATA$UNPROCESSED_RED_MEAT_DENSITY_QUARTILE_4th<-ifelse(PERMUTE_DATA$UNPROCESSED_RED_MEAT_DENSITY_QUARTILE==4,1,0)
+
+PERMUTE_DATA$UNPROCESSED_RED_MEAT_DENSITY_QUINTILE_2nd<-ifelse(PERMUTE_DATA$UNPROCESSED_RED_MEAT_DENSITY_QUINTILES==2,1,0)
+PERMUTE_DATA$UNPROCESSED_RED_MEAT_DENSITY_QUINTILE_3rd<-ifelse(PERMUTE_DATA$UNPROCESSED_RED_MEAT_DENSITY_QUINTILES==3,1,0)
+PERMUTE_DATA$UNPROCESSED_RED_MEAT_DENSITY_QUINTILE_4th<-ifelse(PERMUTE_DATA$UNPROCESSED_RED_MEAT_DENSITY_QUINTILES==4,1,0)
+PERMUTE_DATA$UNPROCESSED_RED_MEAT_DENSITY_QUINTILE_5th<-ifelse(PERMUTE_DATA$UNPROCESSED_RED_MEAT_DENSITY_QUINTILES==5,1,0)
+
+
+#For standard meat and density meat, categorize as 4 quartiles and 5 quintiles
+PERMUTE_DATA$UNPROCESSED_RED_MEAT_STANDARD_QUARTILE<-factor(PERMUTE_DATA$UNPROCESSED_RED_MEAT_STANDARD_QUARTILE,levels=c(1,2,3,4),labels=c("1st", "2nd","3rd","4th"))
+PERMUTE_DATA$UNPROCESSED_RED_MEAT_STANDARD_QUINTILES<-factor(PERMUTE_DATA$UNPROCESSED_RED_MEAT_STANDARD_QUINTILES,levels=c(1,2,3,4,5),labels=c("1st", "2nd","3rd","4th","5th"))
+PERMUTE_DATA$UNPROCESSED_RED_MEAT_DENSITY_QUARTILE<-factor(PERMUTE_DATA$UNPROCESSED_RED_MEAT_DENSITY_QUARTILE,levels=c(1,2,3,4),labels=c("1st", "2nd","3rd","4th"))
+PERMUTE_DATA$UNPROCESSED_RED_MEAT_DENSITY_QUINTILES<-factor(PERMUTE_DATA$UNPROCESSED_RED_MEAT_DENSITY_QUINTILES,levels=c(1,2,3,4,5),labels=c("1st", "2nd","3rd","4th","5th"))
+
+
+#bootstrap function
+
+bootstrap<-function(n,seed){
+  set.seed(seed)
+  median_effect_size<-numeric(n)
+  number_of_significant<-numeric(n)
+  average_z<-numeric(n)
+  for (i in 1:n){
+    print(i)
+    BOOT_DATA<-PERMUTE_DATA[sample(nrow(PERMUTE_DATA), size=nrow(PERMUTE_DATA),replace=TRUE),]
+    skip_to_next<-FALSE
+    tryCatch({
+    #Run specification curve analysis for standard continuous model, subgroup for age_group and gender
+    results_standard_continous_boot <- run_specs(df = BOOT_DATA,
+                                            y = c("Surv(PERMTH_INT,MORTSTAT)"),
+                                            x = c("UNPROCESSED_RED_MEAT_STANDARD_CONTINOUS"), 
+                                            model = c("cox_no_interaction_standard_continous"),
+                                            controls = adjusting_variables[1],
+                                            subsets = list(GENDER = unique(BOOT_DATA$GENDER),
+                                                           AGE_GROUP = unique(BOOT_DATA$AGE_GROUP)))
+    
+    #drop no adjusting variables results
+    results_standard_continous_boot<-results_standard_continous_boot[results_standard_continous_boot$controls!="no covariates",]
+    #get HR, CI for 100 gram increase for continuous meat standard model
+    results_standard_continous_boot$estimate<-exp(results_standard_continous_boot$estimate*100)
+    results_standard_continous_boot$conf.low<-exp(results_standard_continous_boot$conf.low*100)
+    results_standard_continous_boot$conf.high<-exp(results_standard_continous_boot$conf.high*100)
+    #drop CI not in the range of (0.2,5) because they are not plausible CI
+    results_standard_continous_boot<-results_standard_continous_boot[results_standard_continous_boot$conf.low>=0.2&results_standard_continous_boot$conf.high<=5,]
+    #create analytical_model column for plotting purposes
+    results_standard_continous_boot <- results_standard_continous_boot %>% mutate(Analytical_model = "Standard Model")
+    
+    
+    #Run specification curve analysis for density continuous model, subgroup for age_group and gender
+    results_density_continous_boot <- run_specs(df = BOOT_DATA,
+                                           y = c("Surv(PERMTH_INT,MORTSTAT)"),
+                                           x = c("UNPROCESSED_RED_MEAT_DENSITY_CONTINOUS"), 
+                                           model = c("cox_no_interaction_density_continous"),
+                                           controls = adjusting_variables[1],
+                                           subsets = list(GENDER = unique(BOOT_DATA$GENDER),
+                                                          AGE_GROUP = unique(BOOT_DATA$AGE_GROUP)))
+    results_density_continous_boot<-results_density_continous_boot[results_density_continous_boot$controls!="no covariates",]
+    
+    
+    #for density model, calculate HR and CI for 100gram/2000kcal increase
+    results_density_continous_boot$estimate<-exp(results_density_continous_boot$estimate*100/2000)
+    results_density_continous_boot$conf.low<-exp(results_density_continous_boot$conf.low*100/2000)
+    results_density_continous_boot$conf.high<-exp(results_density_continous_boot$conf.high*100/2000)
+    #drop results not plausible CI not in (0.2,5)
+    results_density_continous_boot<-results_density_continous_boot[results_density_continous_boot$conf.low>=0.2&results_density_continous_boot$conf.high<=5,]
+
+    results_density_continous_boot <- results_density_continous_boot %>% mutate(Analytical_model = "Multivariable Nutrient Density Model")
+    
+    #Run specification curve analysis for standard quartile model, subgroup for age_group and gender
+    results_standard_quartile_boot <- run_specs(df = BOOT_DATA,
+                                           y = c("Surv(PERMTH_INT,MORTSTAT)"),
+                                           x = c("UNPROCESSED_RED_MEAT_STANDARD_QUARTILE_4th"), 
+                                           model = c("cox_no_interaction_standard_quartile"),
+                                           controls = adjusting_variables[1],
+                                           subsets = list(GENDER = unique(BOOT_DATA$GENDER),
+                                                          AGE_GROUP = unique(BOOT_DATA$AGE_GROUP)))
+    results_standard_quartile_boot<-results_standard_quartile_boot[results_standard_quartile_boot$controls!="no covariates",]
+    
+    #calculate HR and CI comparing highest quartile to lowest quartile
+    results_standard_quartile_boot$estimate<-exp(results_standard_quartile_boot$estimate)
+    results_standard_quartile_boot$conf.low<-exp(results_standard_quartile_boot$conf.low)
+    results_standard_quartile_boot$conf.high<-exp(results_standard_quartile_boot$conf.high)
+    
+    results_standard_quartile_boot<-results_standard_quartile_boot[results_standard_quartile_boot$conf.low>=0.2&results_standard_quartile_boot$conf.high<=5,]
+    
+    
+    results_standard_quartile_boot <- results_standard_quartile_boot %>% mutate(Analytical_model = "Standard Model")
+    
+    #Run specification curve analysis for standard quintile model, subgroup for age_group and gender
+    results_standard_quintile_boot <- run_specs(df = BOOT_DATA,
+                                           y = c("Surv(PERMTH_INT,MORTSTAT)"),
+                                           x = c("UNPROCESSED_RED_MEAT_STANDARD_QUINTILE_5th"), 
+                                           model = c("cox_no_interaction_standard_quintile"),
+                                           controls = adjusting_variables[1],
+                                           subsets = list(GENDER = unique(BOOT_DATA$GENDER),
+                                                          AGE_GROUP = unique(BOOT_DATA$AGE_GROUP)))
+    
+    results_standard_quintile_boot<-results_standard_quintile_boot[results_standard_quintile_boot$controls!="no covariates",]
+    
+    #calculate HR and CI comparing highest quintile to lowest quintile
+    results_standard_quintile_boot$estimate<-exp(results_standard_quintile_boot$estimate)
+    results_standard_quintile_boot$conf.low<-exp(results_standard_quintile_boot$conf.low)
+    results_standard_quintile_boot$conf.high<-exp(results_standard_quintile_boot$conf.high)
+    
+    results_standard_quintile_boot<-results_standard_quintile_boot[results_standard_quintile_boot$conf.low>=0.2&results_standard_quintile_boot$conf.high<=5,]
+    
+    
+    results_standard_quintile_boot <- results_standard_quintile_boot %>% mutate(Analytical_model = "Standard Model")
+    
+    #Run specification curve analysis for density quartile model, subgroup for age_group and gender
+    results_density_quartile_boot <- run_specs(df = BOOT_DATA,
+                                          y = c("Surv(PERMTH_INT,MORTSTAT)"),
+                                          x = c("UNPROCESSED_RED_MEAT_DENSITY_QUARTILE_4th"), 
+                                          model = c("cox_no_interaction_density_quartile"),
+                                          controls = adjusting_variables[1],
+                                          subsets = list(GENDER = unique(BOOT_DATA$GENDER),
+                                                         AGE_GROUP = unique(BOOT_DATA$AGE_GROUP)))
+    results_density_quartile_boot<-results_density_quartile_boot[results_density_quartile_boot$controls!="no covariates",]
+    
+    #calculate HR and CI comparing highest quartile to lowest quartile
+    results_density_quartile_boot$estimate<-exp(results_density_quartile_boot$estimate)
+    results_density_quartile_boot$conf.low<-exp(results_density_quartile_boot$conf.low)
+    results_density_quartile_boot$conf.high<-exp(results_density_quartile_boot$conf.high)
+    
+    results_density_quartile_boot<-results_density_quartile_boot[results_density_quartile_boot$conf.low>=0.2&results_density_quartile_boot$conf.high<=5,]
+    
+    
+    results_density_quartile_boot <- results_density_quartile_boot %>% mutate(Analytical_model = "Multivariable Nutrient Density Model")
+    
+    #Run specification curve analysis for density quintile model, subgroup for age_group and gender
+    results_density_quintile_boot <- run_specs(df = BOOT_DATA,
+                                          y = c("Surv(PERMTH_INT,MORTSTAT)"),
+                                          x = c("UNPROCESSED_RED_MEAT_DENSITY_QUINTILE_5th"), 
+                                          model = c("cox_no_interaction_density_quintile"),
+                                          controls = adjusting_variables[1],
+                                          subsets = list(GENDER = unique(BOOT_DATA$GENDER),
+                                                         AGE_GROUP = unique(BOOT_DATA$AGE_GROUP)))
+    
+    results_density_quintile_boot<-results_density_quintile_boot[results_density_quintile_boot$controls!="no covariates",]
+    
+    #calculate HR and CI comparing highest quintile to lowest quintile
+    results_density_quintile_boot$estimate<-exp(results_density_quintile_boot$estimate)
+    results_density_quintile_boot$conf.low<-exp(results_density_quintile_boot$conf.low)
+    results_density_quintile_boot$conf.high<-exp(results_density_quintile_boot$conf.high)
+    
+    results_density_quintile_boot<-results_density_quintile_boot[results_density_quintile_boot$conf.low>=0.2&results_density_quintile_boot$conf.high<=5,]
+    results_density_quintile_boot <- results_density_quintile_boot %>% mutate(Analytical_model = "Multivariable Nutrient Density Model")
+    
+    #combine all 6 result tables
+    combined_results_boot<-rbind(results_standard_continous_boot, results_standard_quartile_boot,results_standard_quintile_boot,results_density_continous_boot,results_density_quartile_boot,results_density_quintile_boot)
+    
+    median_effect_size[i]<-median(combined_results_boot$estimate)
+    number_of_significant[i]<-sum(combined_results_boot$p.value<=0.05)
+    average_z[i]<-sum(combined_results_boot$statistic)/sqrt(nrow(combined_results_boot))
+    },error = function(e){skip_to_next<-TRUE})
+    if(skip_to_next){next}
+    
+  }
+  return(list(median_effect_size=median_effect_size,number_of_significant=number_of_significant,average_z=average_z))
+}
+
+
+
+
+
+run_1<-bootstrap(n=120,seed=98431)
+write.csv(run_1,file="run_1.csv")
+
+run_2<-bootstrap(n=120,seed=21398)
+write.csv(run_2,file="run_2.csv")
+
+run_3<-bootstrap(n=150,seed=7857843)
+write.csv(run_3,file="run_3.csv")
+
+run_4<-bootstrap(n=140,seed=213)
+write.csv(run_4,file="run_4.csv")
+
+
+
+
+
+
+
+
+
+
+
+
+
