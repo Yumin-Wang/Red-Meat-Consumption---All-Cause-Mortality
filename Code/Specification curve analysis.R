@@ -584,6 +584,12 @@ combined_results$x[grepl('QUINTILE', combined_results$x)]<-"Quintile"
 #rename columns
 combined_results<-combined_results%>%rename(MeatType=x,Model=Analytical_model,AdjustingVariables=controls,SexGroup=GENDER,AgeGroup=AGE_GROUP)
 
+
+#implausible<-combined_results[combined_results$conf.low<0.2|combined_results$conf.high>5,]
+#sum(combined_results$estimate>=0.9&combined_results$estimate<=1.1)/nrow(combined_results)
+
+
+
 #customize upper plot
 p1<-plot_curve(combined_results,ci=TRUE,null=1) +
   geom_hline(yintercept = 1, linetype = "dashed", color = "grey") +
@@ -610,23 +616,27 @@ nrow(combined_results[combined_results$p.value<=0.05,])/nrow(combined_results)
 #significant harmful results
 harmful<-combined_results[combined_results$p.value<=0.05&combined_results$estimate>1,]
 
-#calculate median hazard ratio for men
+#calculate median hazard ratio for harmful
 median(harmful$estimate)
 
-#IQR for hazard ratio for men
+#IQR for hazard ratio for harmful
 quantile(harmful$estimate,prob=c(0.25,0.75))
 
 
 #significant beneficial results
 beneficial<-combined_results[combined_results$p.value<=0.05&combined_results$estimate<1,]
 
-#calculate median hazard ratio for men
+#calculate median hazard ratio for bene
 median(beneficial$estimate)
 
-#IQR for hazard ratio for men
+#IQR for hazard ratio for bene
 quantile(beneficial$estimate,prob=c(0.25,0.75))
 
+#%above 1
+sum(combined_results$estimate>=1)/nrow(combined_results)
 
+#%below 1
+sum(combined_results$estimate<1)/nrow(combined_results)
 
 
 
@@ -970,13 +980,23 @@ write.csv(run_4,file="run_4.csv")
 
 
 
+run_1<-read.csv('run_1.csv')
+run_2<-read.csv('run_2.csv')
+run_3<-read.csv('run_3.csv')
+run_4<-read.csv('run_4.csv')
 
 
+run_total<-rbind(run_1,run_2,run_3,run_4)
+run_total<-run_total[run_total$median_effect_size!=0&!is.na(run_total$median_effect_size),]
+run_total<-run_total[1:500,]
 
+p_median_effect_size<-sum(run_total$median_effect_size<=median(combined_results$estimate))*2/nrow(run_total)
+p_median_effect_size
 
+p_share_significant<-sum(run_total$number_of_significant>=48)/nrow(run_total)
+p_share_significant
 
-
-
-
+stouffer_Z<-sum(run_total$average_z<=sum(combined_results$statistic)/sqrt(nrow(combined_results)))*2/nrow(run_total)
+stouffer_Z
 
 

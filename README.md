@@ -28,5 +28,7 @@ Open the "Code" folder you will find the following:
 
 (4) Specification curve analysis.R: This is the main code for specification curve analysis
 
+(5) Bootstrap results run_1, run_2, run_3, run_4
+
 
 
